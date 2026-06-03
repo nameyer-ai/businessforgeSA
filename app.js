@@ -568,6 +568,7 @@ function showWelcomeDashboard() {
 showWelcomeDashboard();
 
 console.log("BusinessForgeSA Core Engine Map successfully injected and secured.");
+
 /**
  * Dispatches input payloads over Vercel's secure firewall edge route
  */
@@ -575,27 +576,17 @@ async function executeSecureVercelAudit(moduleId) {
     const outputScreen = document.getElementById('audit-output-screen');
     const statusDot = document.getElementById('pulsing-radar-dot');
     
-    let textToAnalyze = "";
-
-    // Grab the right form data values depending on active state
-    if (moduleId === 'brandguard-auditor') {
-        const customInput = document.getElementById('audit-text-input');
-        textToAnalyze = customInput ? customInput.value.trim() : "";
-    } else {
-        const standardInput = document.getElementById('standard-module-input');
-        textToAnalyze = standardInput ? standardInput.value.trim() : "";
-    }
+    const inputArea = document.getElementById('audit-text-input');
+    const textToAnalyze = inputArea ? inputArea.value.trim() : "";
 
     if (!textToAnalyze) {
         alert("Please enter script or system text details before running an analysis lifecycle scan.");
         return;
     }
 
-    // Setup interactive processing screen layouts for testers
     if (outputScreen) {
-        outputScreen.innerHTML = `<span class="text-indigo-400">🔄 [SYSTEM TRACE]: Establishing connection handshake via secure api server route layer...\nEvaluating parameters against regulatory frameworks (POPIA/CPA)...</span>`;
-        outputScreen.classList.remove('text-slate-500', 'text-rose-400', 'text-emerald-400');
-        outputScreen.classList.add('text-indigo-400');
+        outputScreen.innerHTML = `[🔄 SYSTEM TRACE]: Establishing connection handshake via secure Vercel edge layer...\nEvaluating parameters against regulatory frameworks (POPIA/CPA)...`;
+        outputScreen.style.color = "#818cf8"; // Indigo processing state text
     }
     
     if (statusDot) {
@@ -603,7 +594,6 @@ async function executeSecureVercelAudit(moduleId) {
     }
 
     try {
-        // Pointing cleanly to your secure, unexposed serverless function
         const response = await fetch('/api/audit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -616,16 +606,15 @@ async function executeSecureVercelAudit(moduleId) {
         if (!response.ok) throw new Error(`Handshake transaction error. HTTP status caught: ${response.status}`);
         const resultPayload = await response.json();
 
-        // Print clean report results back onto your terminal mockup screen pane
-        if (outputScreen) {
-            outputScreen.classList.remove('text-indigo-400');
-            outputScreen.classList.add('text-slate-300');
+        // Ensure findings list exists before trying to loop over it
+        if (outputScreen && resultPayload && Array.isArray(resultPayload.findings)) {
+            outputScreen.style.color = "#cbd5e1"; // Clean text color reset
             
             let structuredOutput = `[✓] RADAR INITIALIZATION COMPLETE\n`;
             structuredOutput += `--------------------------------------------------\n`;
-            structuredOutput += `STATUS: ${resultPayload.status}\n`;
-            structuredOutput += `COMPLIANCE INDEX RATING: ${resultPayload.complianceScore}%\n`;
-            structuredOutput += `TIMESTAMP LOG: ${resultPayload.timestamp}\n`;
+            structuredOutput += `STATUS: ${resultPayload.status || "Complete"}\n`;
+            structuredOutput += `COMPLIANCE INDEX RATING: ${resultPayload.complianceScore || 100}%\n`;
+            structuredOutput += `TIMESTAMP LOG: ${resultPayload.timestamp || "ACTIVE"}\n`;
             structuredOutput += `--------------------------------------------------\n\n`;
             structuredOutput += `IDENTIFIED CORE FINDINGS:\n\n`;
             
@@ -635,6 +624,8 @@ async function executeSecureVercelAudit(moduleId) {
             });
 
             outputScreen.innerHTML = structuredOutput;
+        } else {
+            throw new Error("Backend response package format mismatch.");
         }
 
         if (statusDot) {
@@ -642,11 +633,10 @@ async function executeSecureVercelAudit(moduleId) {
         }
 
     } catch (error) {
-        console.error("Secure execution caught pipeline leak:", error);
+        console.error("Secure execution caught pipeline error:", error);
         if (outputScreen) {
-            outputScreen.classList.remove('text-indigo-400');
-            outputScreen.classList.add('text-rose-400');
-            outputScreen.innerHTML = `⚠️ [API EXPORT FAULT]: Serverless function routing connection failure.\n\nDetails: ${error.message}\n\nEnsure repository is uploaded to Vercel and your secure backend folder files matching /api/audit.js remain unchanged.`;
+            outputScreen.style.color = "#f87171"; // Rose error text
+            outputScreen.innerHTML = `⚠️ [API EXPORT FAULT]: Serverless function routing connection failure.\n\nDetails: ${error.message}\n\nEnsure repository is uploaded to Vercel and your secure backend folder files matching /api/audit.js match perfectly.`;
         }
         if (statusDot) {
             statusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
