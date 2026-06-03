@@ -200,6 +200,9 @@ const SYNTAX_SYSTEMS_MODULES = [
 /**
  * Manages UI module state changes within the dashboard workspace layout
  */
+/**
+ * Manages UI module state changes within the dashboard workspace layout
+ */
 function switchModule(moduleId) {
     console.log("Switching workspace view target to:", moduleId);
     
@@ -223,8 +226,11 @@ function switchModule(moduleId) {
                 </div>
                 
                 <div class="mt-6 flex flex-col sm:flex-row items-center gap-3 w-full" id="action-trigger-row">
-                    <button id="execution-loop-trigger" class="w-full sm:flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white py-4 px-6 rounded-xl font-bold shadow-lg shadow-indigo-500/10 transition-all flex items-center justify-center gap-2 tracking-wide text-sm">
+                    <button id="execution-loop-trigger" class="w-full sm:w-2/3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white py-4 px-6 rounded-xl font-bold shadow-lg shadow-indigo-500/10 transition-all flex items-center justify-center gap-2 tracking-wide text-sm">
                         <span>⚡</span> Execute Secure Audit Loop
+                    </button>
+                    <button id="sample-data-trigger" class="w-full sm:w-1/3 bg-slate-800 hover:bg-slate-700 text-slate-200 py-4 px-4 rounded-xl font-mono font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-slate-700">
+                        <span>📋</span> Load Sample
                     </button>
                 </div>
             </div>
@@ -249,7 +255,6 @@ function switchModule(moduleId) {
     const inputsContainer = document.getElementById('dynamic-inputs-container');
     
     if (moduleId === 'brandguard-auditor') {
-        // Render a robust text window area specifically for the website auditor
         inputsContainer.innerHTML = `
             <div class="space-y-2">
                 <label class="block text-[11px] font-mono uppercase tracking-wider text-indigo-400">Target Digital Copy Text</label>
@@ -257,11 +262,10 @@ function switchModule(moduleId) {
             </div>
         `;
     } else {
-        // Standard fallbacks configuration for your other 12 modules
         inputsContainer.innerHTML = `
             <div class="space-y-2">
                 <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-400">Workspace Text Inputs</label>
-                <input type="text" id="standard-module-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm font-mono text-white" placeholder="Enter configuration parameters...">
+                <textarea id="audit-text-input" class="w-full h-44 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm font-mono text-white placeholder-slate-700 focus:outline-none focus:border-slate-700 transition-colors" placeholder="Enter configuration parameters..."></textarea>
             </div>
         `;
     }
@@ -269,6 +273,11 @@ function switchModule(moduleId) {
     // 3. Attach the secure listener execution bridge hook to the main button element
     document.getElementById('execution-loop-trigger').onclick = () => {
         executeSecureVercelAudit(moduleId);
+    };
+
+    // 4. Attach the dynamic preloaded data injection script handler
+    document.getElementById('sample-data-trigger').onclick = () => {
+        injectModuleSampleData(moduleId);
     };
 }
 /**
@@ -642,5 +651,40 @@ async function executeSecureVercelAudit(moduleId) {
         if (statusDot) {
             statusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
         }
+    }
+}
+/**
+ * Repository of pre-loaded sample text values for your modules
+ */
+const MODULE_SAMPLE_DATABASE = {
+    "brandguard-auditor": `Welcome to our platform! Fill out this form to sign up. By clicking submit, you agree to receive promotional text messages and marketing offers from our corporate partners. We track your location to optimize your service delivery pipeline. No opt-out box is required because your registration implies consent under standard local terms.`,
+    
+    "margin-protection": `Cost of Goods Sold (COGS): R45,000\nTarget Wholesale Unit Volume: 1,200 units\nRaw Materials Overhead Markups: 14%\nCompetitor Base Pricing Index: R85.00/unit`,
+    
+    "cashflow-forecasting": `Current Cash Reserve: R120,000\nExpected Receivables (30 Days): R85,000\nFixed Operational Debits (Salaries/Rent): R65,000\nVariable Supply Invoices: R40,000`
+};
+
+/**
+ * Automatically injects the precise module sample copy right into the textarea container
+ */
+function injectModuleSampleData(moduleId) {
+    const inputArea = document.getElementById('audit-text-input');
+    const outputScreen = document.getElementById('audit-output-screen');
+    
+    // Retrieve the sample text context from our dictionary pool
+    const sampleText = MODULE_SAMPLE_DATABASE[moduleId] || `Sample placeholder data matrix for target workspace ID: \${moduleId}`;
+    
+    if (inputArea) {
+        inputArea.value = sampleText.trim();
+        console.log(`Successfully preloaded sample matrix for workspace context: \${moduleId}`);
+        
+        // Give optional status indicator log back to the transcript ledger pane
+        if (outputScreen) {
+            outputScreen.classList.remove('text-indigo-400', 'text-rose-400', 'text-emerald-400');
+            outputScreen.classList.add('text-slate-400');
+            outputScreen.innerHTML = `[i] Live module sample data successfully loaded into input panel matrix.\nPress "Execute Secure Audit Loop" to analyze this text structure...`;
+        }
+    } else {
+        console.error("Target input area view element not found in active workspace layout.");
     }
 }
