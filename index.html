@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusinessForgeSA</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-white font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+    <div id="public-marketing-page" class="block">
+        
+        <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">⚒️</span>
+                    <span class="font-mono tracking-wider font-black text-lg bg-gradient-to-r from-white via-slate-200 to-indigo-400 bg-clip-text text-transparent">BUSINESSFORGE<span class="text-indigo-500">SA</span></span>
+                </div>
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+                    <a href="#benefits" class="hover:text-white transition-colors">Financial Advantage</a>
+                    <a href="#modules" class="hover:text-white transition-colors">The 13 Engines</a>
+                    <a href="#pricing" class="hover:text-white transition-colors">Pricing Tiers</a>
+                </nav>
+                <div>
+                    <button onclick="activatePortalConsole()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-mono font-bold text-xs py-3 px-5 rounded-xl border border-indigo-500/30 transition-all shadow-lg shadow-indigo-500/10 flex items-center gap-2">
+                        💻 Launch System Console
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <section class="relative overflow-hidden pt-24 pb-20 border-b border-slate-900">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.05),transparent_50%)]"></div>
+            <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-950/50 border border-indigo-500/30 text-indigo-400 text-xs font-mono font-semibold uppercase tracking-wider mb-8 mx-auto">
+                    🇿🇦 Built for South African Business Owners
+                </div>
+                <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white leading-none mb-6">
+                    Run your business like a corporate giant—<br>
+                    <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">without the crazy costs.</span>
+                </h1>
+                <p class="text-slate-400 text-base md:text-lg max-w-3xl mx-auto mb-10 leading-relaxed">
+                    Stop wasting money on expensive monthly retainers. Get 13 built-in tools to handle your legal paperwork, staff issues, government compliance, and cash flow tracking 24/7. No complicated setups, no hidden fees.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#pricing" class="w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-950 font-bold text-sm py-4 px-8 rounded-xl transition-all text-center">
+                        View Pricing Plans
+                    </a>
+                    <button onclick="activatePortalConsole()" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-slate-300 font-mono font-bold text-sm py-4 px-8 rounded-xl border border-slate-800 transition-all text-center">
+                        Enter Access Token &rarr;
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="benefits" class="py-20 border-b border-slate-900 bg-slate-900/20">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="font-mono text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">The Real Cost</h2>
+                    <h3 class="text-3xl font-black text-white">Outside Consultants vs. The BusinessForge Shortcut</h3>
+                    <p class="text-slate-400 text-sm max-w-xl mx-auto mt-2">How much of your hard-earned profit leaks away into reactive professional fees every single month?</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <div class="bg-slate-950 p-8 rounded-2xl border border-red-500/10 shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-red-500/10 text-red-400 px-3 py-1 font-mono text-[10px] uppercase font-bold tracking-wider rounded-bl-xl border-l border-b border-red-500/10">Traditional Way</div>
+                        <h4 class="text-lg font-bold text-slate-200 mb-6 flex items-center gap-2">❌ The Outsource Retainer Tax</h4>
+                        <ul class="space-y-4 font-mono text-xs text-slate-400">
+                            <li class="flex justify-between py-2 border-b border-slate-900"><span>• Labor & HR Consultants:</span> <span class="text-red-400 font-bold">R3,500 - R7,500/mo</span></li>
+                            <li class="flex justify-between py-2 border-b border-slate-900"><span>• Lawyers (Ad-hoc contract fixes):</span> <span class="text-red-400 font-bold">R2,500 - R4,500/hr</span></li>
+                            <li class="flex justify-between py-2 border-b border-slate-900"><span>• Fractional CFO Cash Planners:</span> <span class="text-red-400 font-bold">R4,000 - R12,000/mo</span></li>
+                            <li class="flex justify-between py-2 border-b border-slate-900"><span>• Copywriters (Quotes & SEO text):</span> <span class="text-red-400 font-bold">R5,000 - R15,000/mo</span></li>
+                        </ul>
+                        <div class="mt-8 pt-4 border-t border-slate-900 flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400">Average Monthly Burn:</span>
+                            <span class="text-red-400 font-mono font-black text-xl">R25,000+ / mo</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-indigo-950/30 to-slate-950 p-8 rounded-2xl border border-indigo-500/30 shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-indigo-500/20 text-indigo-400 px-3 py-1 font-mono text-[10px] uppercase font-bold tracking-wider rounded-bl-xl border-l border-b border-indigo-500/20">The Forge Fix</div>
+                        <h4 class="text-lg font-bold text-white mb-6 flex items-center gap-2">⚡ The BusinessForge Framework</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-6">
+                            You don't need to hire expensive outside experts or add extra heads to your permanent payroll. With these 13 built-in modules, your current office assistant or admin staff can handle advanced compliance and planning perfectly on their own.
+                        </p>
+                        <ul class="space-y-3 font-mono text-xs text-slate-300">
+                            <li class="flex items-center gap-2 text-emerald-400"><span>✓</span> 24/7 Instant Compliance (COIDA & SETA Mapping)</li>
+                            <li class="flex items-center gap-2 text-emerald-400"><span>✓</span> Automated 90-Day Cash Flow Horizons</li>
+                            <li class="flex items-center gap-2 text-emerald-400"><span>✓</span> High-Closing Commercial Bids & SEO Layouts</li>
+                            <li class="flex items-center gap-2 text-emerald-400"><span>✓</span> No Complex Technical AI Settings Needed</li>
+                        </ul>
+                        <div class="mt-8 pt-4 border-t border-slate-900 flex justify-between items-center">
+                            <span class="text-xs font-bold text-indigo-300">Your Fixed Cost:</span>
+                            <span class="text-emerald-400 font-mono font-black text-xl">From $9 Single-Pass</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="modules" class="py-20 border-b border-slate-900">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="font-mono text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">What You Actually Get</h2>
+                    <h3 class="text-3xl font-black text-white">The 13 Tools Built to Run Your Business</h3>
+                    <p class="text-slate-400 text-sm max-w-xl mx-auto mt-2">Three main business desks designed to keep you out of trouble, protect your cash, and organize your staff at the same time.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-900">
+                        <div class="text-xl mb-4">🛡️</div>
+                        <h4 class="text-base font-bold text-white mb-2">Pillar 1: Compliance Desk</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">Keeps government inspectors off your back and stops you from getting hit with sudden administrative penalties or labor fines.</p>
+                        <div class="space-y-2 text-[11px] font-mono text-slate-400">
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">COIDA Specialist:</strong> 7-Day workplace accident insurance framework.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">SETA Navigator:</strong> Explains how to claim back up to 20% of your training levy cash.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">ClaraLex Legal:</strong> Explains tricky business laws in simple, everyday English.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">BrandGuard:</strong> Audits your website copy to keep your data POPIA-safe.</div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-900">
+                        <div class="text-xl mb-4">📈</div>
+                        <h4 class="text-base font-bold text-white mb-2">Pillar 2: Profit Engine</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">Plugs the leaks in your bank account, secures your take-home margins, and helps you land premium contract bids.</p>
+                        <div class="space-y-2 text-[11px] font-mono text-slate-400">
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">FlowCast:</strong> Looks 90 days ahead so you always clear your staff payroll safely.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">Margin Protector:</strong> Diagnostic check to see exactly where you lose money on quotes.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">QuoteForge:</strong> Creates high-tier commercial proposals that look truly established.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">RankCraft:</strong> Isolates the local keywords to get your business found on Google.</div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-slate-900/50 border border-slate-900">
+                        <div class="text-xl mb-4">⚙️</div>
+                        <h4 class="text-base font-bold text-white mb-2">Pillar 3: Operations Desk</h4>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">Organizes your daily tasks and staff protocols so your business runs smoothly even if you take a weekend off.</p>
+                        <div class="space-y-2 text-[11px] font-mono text-slate-400">
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">ProcedureAI:</strong> Turns manual tasks into simple SOP rulebooks that anyone can follow.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">HireForge:</strong> Scorecard filters to stop you from hiring the wrong candidate.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">ReviewAI:</strong> Easy performance review templates to handle staff issues fairly.</div>
+                            <div class="p-2 rounded bg-slate-950 border border-slate-900"><strong class="text-slate-200">VoiceForge & RetainIQ:</strong> Formats clear company announcements and customer retention paths.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 border-b border-slate-900 bg-gradient-to-b from-slate-950 to-indigo-950/10">
+            <div class="max-w-5xl mx-auto px-6">
+                <div class="bg-gradient-to-r from-indigo-950/50 via-slate-900 to-indigo-950/30 rounded-3xl border border-indigo-500/20 p-8 md:p-12 relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(99,102,241,0.08),transparent_40%)]"></div>
+                    
+                    <div class="relative z-10">
+                        <span class="font-mono text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 border border-emerald-500/20 px-3 py-1 rounded-full">Included Free With All Access Keys</span>
+                        <h3 class="text-2xl md:text-4xl font-black text-white mt-4 mb-3">The 2026 SA Business Survival Bundle</h3>
+                        <p class="text-slate-400 text-sm max-w-2xl mb-10 leading-relaxed">
+                            Don't waste hours trying to draft official paperwork from scratch. The moment you unlock your token, you get an immediate download link to 5 plug-and-play templates made specifically for South African rules:
+                        </p>
+
+                        <div class="grid sm:grid-cols-2 md:grid-cols-5 gap-4 text-left">
+                            
+                            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/60">
+                                <div class="text-lg mb-2">📋</div>
+                                <h4 class="text-xs font-bold text-slate-200 mb-1">1. Labour Audit Checklist</h4>
+                                <p class="text-[10px] text-slate-500 font-mono">Check your payroll setup and coverage records before an inspector knocks on your door.</p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/60">
+                                <div class="text-lg mb-2">⚖️</div>
+                                <h4 class="text-xs font-bold text-slate-200 mb-1">2. CCMA-Safe Warning Template</h4>
+                                <p class="text-[10px] text-slate-500 font-mono">Issue disciplinary warnings that actually stand up if an employee dispute happens.</p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/60">
+                                <div class="text-lg mb-2">📅</div>
+                                <h4 class="text-xs font-bold text-slate-200 mb-1">3. 2026 SARS Tax Calendar</h4>
+                                <p class="text-[10px] text-slate-500 font-mono">Keep track of your VAT, PAYE, and Provisional Tax deadline dates easily.</p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/60">
+                                <div class="text-lg mb-2">🛡️</div>
+                                <h4 class="text-xs font-bold text-slate-200 mb-1">4. Official B-BBEE Affidavit Layout</h4>
+                                <p class="text-[10px] text-slate-500 font-mono">Fill-in-the-blanks Exempted Micro Enterprise template for immediate procurement bidding.</p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/60">
+                                <div class="text-lg mb-2">🔒</div>
+                                <h4 class="text-xs font-bold text-slate-200 mb-1">5. Ready-Made POPIA Website Policy</h4>
+                                <p class="text-[10px] text-slate-500 font-mono">Put this on your online interfaces instantly to shield client and contact information data.</p>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <p class="text-xs text-slate-400 font-mono flex items-center gap-2">
+                                <span class="text-emerald-400">📦 Total Bundle Value: R4,500+</span> | Instantly delivered in a single compressed .ZIP file directly inside the console.
+                            </p>
+                            <a href="#pricing" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
+                                Secure Your Bundle Now &darr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="py-20 bg-gradient-to-b from-slate-950 to-indigo-950/20">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="font-mono text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">Simple Pricing Plans</h2>
+                    <h3 class="text-3xl font-black text-white">Select Your Operational Level</h3>
+                    <p class="text-slate-400 text-sm max-w-md mx-auto mt-2">All plans grant 100% instant access to our 5 South African Business Survival bonus download bundle.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
+                    <div class="bg-slate-900/40 p-8 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Single Pass</h3>
+                            <p class="text-3xl font-black mb-6">$9</p>
+                            <p class="text-slate-400 text-xs leading-relaxed mb-6">Perfect for single ad-hoc advisory generation, quick checklist generation, or immediate template retrieval operations.</p>
+                        </div>
+                        <div class="pt-6 border-t border-slate-800/60">
+                            <a href="https://www.paypal.com/ncp/payment/Z7CFWV2DBNE88" target="_blank" class="block text-center py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold text-sm transition-colors">Buy Now ($9)</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-slate-900 to-indigo-950/40 p-8 rounded-2xl border-2 border-indigo-400 shadow-2xl relative flex flex-col justify-between transform md:scale-105">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white font-mono text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full">Most Popular</div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Monthly Pro</h3>
+                            <p class="text-3xl font-black mb-6">$29</p>
+                            <p class="text-slate-400 text-xs leading-relaxed mb-6">Designed for expanding teams requiring continuous monitoring, recurrent cash casting updates, and permanent dashboard utility access.</p>
+                        </div>
+                        <div class="pt-6 border-t border-slate-800/60">
+                            <a href="https://www.paypal.com/ncp/payment/TZJWCL3D5ZU3W" target="_blank" class="block text-center py-3 bg-white text-indigo-600 hover:bg-indigo-50 rounded-lg font-bold text-sm transition-colors">Subscribe ($29)</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/40 p-8 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">Agency Elite</h3>
+                            <p class="text-3xl font-black mb-6">$99</p>
+                            <p class="text-slate-400 text-xs leading-relaxed mb-6">Unlocks advanced bulk parameters, multiple enterprise profiles, and extended context parameters for external business consultants.</p>
+                        </div>
+                        <div class="pt-6 border-t border-slate-800/60">
+                            <a href="https://www.paypal.com/ncp/payment/EJ3UJSXKATZLG" target="_blank" class="block text-center py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold text-sm transition-colors">Get Full Access ($99)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="border-t border-slate-900 bg-slate-950 text-center py-8 text-xs text-slate-500 font-mono">
+            &copy; 2026 Syntax & Systems. All Rights Reserved. BusinessForgeSA is an independent corporate advisory framework.
+        </footer>
+
+    </div>
+
+    <div id="gate-overlay" class="hidden fixed inset-0 z-50 bg-slate-950 flex items-center justify-center overflow-y-auto">
+        <div class="max-w-6xl w-full p-8">
+            
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-black mb-4">Forge Access Portal</h1>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    Welcome to the BusinessForge Suite. Unlock your specialized AI modules for 
+                    <strong>South African Compliance, Linguistic Auditing, and Financial Forecasting.</strong>
+                </p>
+            </div>
+
+            <div class="w-full max-w-md mx-auto bg-slate-900/80 p-6 rounded-2xl border border-slate-800 mb-12 text-center shadow-2xl">
+                <label class="block text-xs font-mono font-bold uppercase tracking-widest text-indigo-400 mb-3">
+                    Authorized Access Terminal
+                </label>
+                <p class="text-slate-400 text-xs mb-4 leading-relaxed">
+                    Enter your premium product license key or subscription token below to initialize the system console.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" 
+                           id="gate-access-key" 
+                           placeholder="e.g., FORGE-PRO-2026" 
+                           class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm font-mono text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-center sm:text-left uppercase">
+                    
+                    <button onclick="verifyAccessKey()" 
+                            type="button"
+                            class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/20 whitespace-nowrap">
+                        Unlock Console
+                    </button>
+                </div>
+                
+                <p id="gate-error-message" class="text-rose-400 text-xs mt-3 hidden font-mono border border-rose-950/40 bg-rose-950/10 py-2 px-3 rounded-lg"></p>
+                
+                <button onclick="document.getElementById('gate-overlay').style.display='none'" class="mt-4 text-[11px] font-mono text-slate-500 hover:text-slate-400 transition-colors underline block mx-auto">
+                    &larr; Back to Information Deck
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main id="main-dashboard" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-950 text-white">
+        
+        <aside class="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col gap-6 shrink-0">
+            <div>
+                <div class="mb-6 cursor-pointer group" onclick="showWelcomeDashboard()">
+                    <div class="text-xs font-mono font-bold uppercase tracking-widest text-indigo-400 group-hover:text-indigo-300 transition-colors">Syntax & Systems</div>
+                    <h1 class="text-xl font-black tracking-tight text-white mt-1">BusinessForge<span class="text-indigo-500">.sa</span></h1>
+                </div>
+                
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Consultancy Modules</h2>
+                
+                <div class="space-y-1">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Pillar 1: Compliance</p>
+                    
+                    <button onclick="switchModule('coida-specialist')" id="btn-coida-specialist" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>🛡️</span> COIDA 2022 Specialist
+                    </button>
+                    
+                    <button onclick="switchModule('seta-navigator')" id="btn-seta-navigator" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>📊</span> SETA Navigator
+                    </button>
+                    
+                    <button onclick="switchModule('claralex')" id="btn-claralex" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>⚖️</span> ClaraLex
+                    </button>
+
+                    <button onclick="runDashboardAuditLoop()" id="btn-brandguard-auditor" type="button" class="...">
+                    <span>🖋️</span> BrandGuard Auditor
+                    </button>
+                </div>
+
+                <div class="space-y-1 mt-6">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Pillar 2: Profit Engine</p>
+                    
+                    <button onclick="switchModule('flowcast')" id="btn-flowcast" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>📈</span> FlowCast
+                    </button>
+                    
+                    <button onclick="switchModule('margin-protector')" id="btn-margin-protector" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>🛡️</span> Margin Protector
+                    </button>
+                    
+                    <button onclick="switchModule('quoteforge')" id="btn-quoteforge" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>📝</span> QuoteForge
+                    </button>
+
+                    <button onclick="switchModule('rankcraft')" id="btn-rankcraft" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>🎯</span> RankCraft
+                    </button>
+                </div>
+
+                <div class="space-y-1 mt-6">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Pillar 3: Operations</p>
+                    
+                    <button onclick="switchModule('procedure-ai')" id="btn-procedure-ai" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>⚙️</span> ProcedureAI
+                    </button>
+                    
+                    <button onclick="switchModule('hireforge')" id="btn-hireforge" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>🤝</span> HireForge
+                    </button>
+                    
+                    <button onclick="switchModule('review-ai')" id="btn-review-ai" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>📋</span> ReviewAI
+                    </button>
+
+                    <button onclick="switchModule('voiceforge')" id="btn-voiceforge" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>🗣️</span> VoiceForge
+                    </button>
+
+                    <button onclick="switchModule('retainiq')" id="btn-retainiq" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
+                        <span>🔄</span> RetainIQ
+                    </button>
+                </div>
+                <div class="mt-8 pt-6 border-t border-slate-800">
+                    <div class="p-3.5 rounded-xl bg-gradient-to-b from-indigo-950/40 to-slate-950 border border-indigo-500/20 text-center">
+                        <span class="block text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest mb-1">🎁 Premium Unlocked</span>
+                        <h4 class="text-xs font-bold text-slate-200 leading-tight mb-3">2026 SA Business Survival Bundle</h4>
+                        <a href="survival-bundle.zip" 
+                           download
+                           class="block w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-mono font-black text-[11px] py-2.5 px-3 rounded-lg border border-indigo-500/30 transition-all shadow-md shadow-indigo-600/10">
+                            📥 Download Bundle (.ZIP)
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button onclick="terminateConsoleSession()" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-colors flex items-center gap-2 text-sm font-medium border border-rose-950/30">
+                        <span>🔒</span> Secure Exit
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <section class="flex-1 p-8 bg-slate-900 flex flex-col justify-start">
+            <div id="dynamic-workspace" class="flex-1 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-[550px] p-6">
+                
+             
+            </div>
+        </section>
+
+    </main>
+
+    <script src="app.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>
