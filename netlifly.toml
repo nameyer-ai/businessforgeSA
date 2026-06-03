@@ -2,4 +2,4 @@
   functions = "netlify/functions"
 
 [context.production.environment]
-  GEMINI_API_KEY = "AIzaSyBBLh2_s7i4JUbryysZuPkkNd0ubjeMOTE"
+  GEMINI_API_KEY = ""

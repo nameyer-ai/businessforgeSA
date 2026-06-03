@@ -194,6 +194,9 @@ const SYNTAX_SYSTEMS_MODULES = [
 // ==========================================
 // 2. DYNAMIC WORKSPACE ROUTER (THE BRIDGE)
 // ==========================================
+/**
+ * Manages UI module state changes within the dashboard workspace layout
+ */
 function switchModule(moduleId) {
     console.log("Switching workspace view target to:", moduleId);
     
@@ -203,6 +206,7 @@ function switchModule(moduleId) {
     const workspace = document.getElementById('dynamic-workspace');
     if (!workspace) return;
     
+    // 1. Render the clean dual-pane template onto the workspace
     workspace.innerHTML = `
         <div class="flex-1 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-800 h-full">
             
@@ -217,7 +221,7 @@ function switchModule(moduleId) {
                 
                 <div class="mt-6 flex flex-col sm:flex-row items-center gap-3 w-full" id="action-trigger-row">
                     <button id="execution-loop-trigger" class="w-full sm:flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white py-4 px-6 rounded-xl font-bold shadow-lg shadow-indigo-500/10 transition-all flex items-center justify-center gap-2 tracking-wide text-sm">
-                        <span>⚡</span> Execute Local Audit Loop
+                        <span>⚡</span> Execute Secure Audit Loop
                     </button>
                 </div>
             </div>
@@ -228,78 +232,127 @@ function switchModule(moduleId) {
                     <div class="flex gap-1.5">
                         <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
                         <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <span id="pulsing-radar-dot" class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
                     </div>
                 </div>
-                <div id="audit-output-screen" class="p-5 flex-1 text-slate-500 text-sm font-mono whitespace-pre-wrap leading-relaxed"></div>
+                <div id="audit-output-screen" class="p-5 flex-1 text-slate-500 text-sm font-mono whitespace-pre-wrap leading-relaxed overflow-y-auto">
+                    Awaiting target data execution command input...
+                </div>
             </div>
         </div>
     `;
 
-    const inputContainer = document.getElementById('dynamic-inputs-container');
-    inputContainer.innerHTML = ""; 
-
-    targetModule.inputs.forEach(input => {
-        const fieldWrapper = document.createElement('div');
-        fieldWrapper.className = "space-y-2";
-
-        const label = document.createElement('label');
-        label.className = "block text-xs font-bold uppercase tracking-wider text-slate-400";
-        label.innerHTML = `${input.label} <span class="text-indigo-400">*</span>`;
-
-        let inputField;
-        if (input.type === "textarea") {
-            inputField = document.createElement('textarea');
-            inputField.className = "w-full h-40 bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none";
-        } else {
-            inputField = document.createElement('input');
-            inputField.type = "text";
-            inputField.className = "w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500";
-        }
-
-        inputField.id = input.id;
-        inputField.placeholder = input.placeholder;
-
-        fieldWrapper.appendChild(label);
-        fieldWrapper.appendChild(inputField);
-        inputContainer.appendChild(fieldWrapper);
-    });
-
-    const runButton = document.getElementById('execution-loop-trigger');
-    if (runButton) {
-        runButton.setAttribute('onclick', `processModuleAudit('${moduleId}')`);
-        
-        let buttonGroup = runButton.parentElement;
-        
-        const oldDemoBtn = document.getElementById('demo-data-trigger');
-        if (oldDemoBtn) oldDemoBtn.remove();
-
-        const demoButton = document.createElement('button');
-        demoButton.id = 'demo-data-trigger';
-        demoButton.type = 'button';
-        demoButton.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-3 px-4 rounded-xl transition-all text-sm font-mono border border-slate-700 shadow-md ml-2";
-        demoButton.innerText = "📋 Load Demo Data";
-        demoButton.setAttribute('onclick', `loadModuleDemoData('${moduleId}')`);
-        
-        buttonGroup.appendChild(demoButton);
+    // 2. Build out input fields dynamically based on the active module template
+    const inputsContainer = document.getElementById('dynamic-inputs-container');
+    
+    if (moduleId === 'brandguard-auditor') {
+        // Render a robust text window area specifically for the website auditor
+        inputsContainer.innerHTML = `
+            <div class="space-y-2">
+                <label class="block text-[11px] font-mono uppercase tracking-wider text-indigo-400">Target Digital Copy Text</label>
+                <textarea id="audit-text-input" class="w-full h-44 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm font-mono text-white placeholder-slate-700 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Paste marketing page sentences, compliance copy clauses, or contact form data collection scripts here..."></textarea>
+            </div>
+        `;
+    } else {
+        // Standard fallbacks configuration for your other 12 modules
+        inputsContainer.innerHTML = `
+            <div class="space-y-2">
+                <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-400">Workspace Text Inputs</label>
+                <input type="text" id="standard-module-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm font-mono text-white" placeholder="Enter configuration parameters...">
+            </div>
+        `;
     }
 
+    // 3. Attach the secure listener execution bridge hook to the main button element
+    document.getElementById('execution-loop-trigger').onclick = () => {
+        executeSecureVercelAudit(moduleId);
+    };
+}
+
+/**
+ * Dispatches input payloads over Vercel's secure firewall edge route
+ */
+async function executeSecureVercelAudit(moduleId) {
     const outputScreen = document.getElementById('audit-output-screen');
-    if (outputScreen) {
-        outputScreen.className = "p-5 flex-1 text-slate-500 text-sm font-mono whitespace-pre-wrap";
-        outputScreen.innerHTML = `[SYSTEM STANDBY]: Awaiting execution parameters for ${targetModule.name}...`;
+    const statusDot = document.getElementById('pulsing-radar-dot');
+    
+    let textToAnalyze = "";
+
+    // Grab the right form data values depending on active state
+    if (moduleId === 'brandguard-auditor') {
+        const customInput = document.getElementById('audit-text-input');
+        textToAnalyze = customInput ? customInput.value.trim() : "";
+    } else {
+        const standardInput = document.getElementById('standard-module-input');
+        textToAnalyze = standardInput ? standardInput.value.trim() : "";
     }
 
-    SYNTAX_SYSTEMS_MODULES.forEach(mod => {
-        const btn = document.getElementById(`btn-${mod.id}`);
-        if (btn) {
-            if (mod.id === moduleId) {
-                btn.className = "w-full flex items-center justify-between px-4 py-3 bg-slate-800 text-white rounded-xl border border-slate-700 transition-all font-medium text-sm text-left";
-            } else {
-                btn.className = "w-full flex items-center justify-between px-4 py-3 hover:bg-slate-900/50 text-slate-400 hover:text-slate-200 rounded-xl transition-all text-sm text-left";
-            }
+    if (!textToAnalyze) {
+        alert("Please enter script or system text details before running an analysis lifecycle scan.");
+        return;
+    }
+
+    // Setup interactive processing screen layouts for testers
+    if (outputScreen) {
+        outputScreen.innerHTML = `<span class="text-indigo-400">🔄 [SYSTEM TRACE]: Establishing connection handshake via secure api server route layer...\nEvaluating parameters against regulatory frameworks (POPIA/CPA)...</span>`;
+        outputScreen.classList.remove('text-slate-500', 'text-rose-400', 'text-emerald-400');
+        outputScreen.classList.add('text-indigo-400');
+    }
+    
+    if (statusDot) {
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse";
+    }
+
+    try {
+        // Pointing cleanly to your secure, unexposed serverless function
+        const response = await fetch('/api/audit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                textToScan: textToAnalyze,
+                auditType: moduleId
+            })
+        });
+
+        if (!response.ok) throw new Error(`Handshake transaction error. HTTP status caught: ${response.status}`);
+        const resultPayload = await response.json();
+
+        // 4. Print clean report results back onto your terminal mockup screen pane
+        if (outputScreen) {
+            outputScreen.classList.remove('text-indigo-400');
+            outputScreen.classList.add('text-slate-300');
+            
+            let structuredOutput = `[✓] RADAR INITIALIZATION COMPLETE\n`;
+            structuredOutput += `--------------------------------------------------\n`;
+            structuredOutput += `STATUS: ${resultPayload.status}\n`;
+            structuredOutput += `COMPLIANCE INDEX RATING: ${resultPayload.complianceScore}%\n`;
+            structuredOutput += `TIMESTAMP LOG: ${resultPayload.timestamp}\n`;
+            structuredOutput += `--------------------------------------------------\n\n`;
+            structuredOutput += `IDENTIFIED CORE FINDINGS:\n\n`;
+            
+            resultPayload.findings.forEach((finding, index) => {
+                structuredOutput += `${index + 1}. [SEVERITY: ${finding.severity}]\n`;
+                structuredOutput += `   CRITIQUE: ${finding.issue}\n\n`;
+            });
+
+            outputScreen.innerHTML = structuredOutput;
         }
-    });
+
+        if (statusDot) {
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+        }
+
+    } catch (error) {
+        console.error("Secure execution caught pipeline leak:", error);
+        if (outputScreen) {
+            outputScreen.classList.remove('text-indigo-400');
+            outputScreen.classList.add('text-rose-400');
+            outputScreen.innerHTML = `⚠️ [API EXPORT FAULT]: Serverless function routing connection failure.\n\nDetails: ${error.message}\n\nEnsure repository is uploaded to Vercel and your secure backend folder files matching /api/audit.js remain unchanged.`;
+        }
+        if (statusDot) {
+            statusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+        }
+    }
 }
 
 // =========================================================================
