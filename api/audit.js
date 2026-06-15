@@ -338,6 +338,13 @@ Use this exact JSON structure:
       "owner": "Suggested responsible role.",
       "expectedOutcome": "Expected result of the action."
     }
+      "strategicOpportunities": [
+  {
+    "opportunity": "",
+    "potentialBenefit": "",
+    "recommendedAction": ""
+  }
+]
   ],
   "missingInformation": [
     "Specific missing data that would improve the audit."
@@ -347,7 +354,22 @@ Use this exact JSON structure:
   ],
   "disclaimer": "This AI-generated report is for business guidance and does not replace formal professional, legal, tax, financial, or regulatory advice."
 }
+Strategic Opportunities Requirements:
 
+Identify opportunities in addition to problems.
+
+Look for:
+- cost reduction opportunities
+- revenue growth opportunities
+- process improvement opportunities
+- compliance recovery opportunities
+- client retention opportunities
+- pricing opportunities
+- competitive advantage opportunities
+
+Provide at least 2 strategic opportunities whenever sufficient information exists.
+
+Do not invent opportunities unsupported by the supplied data.
 Rules:
 - complianceScore must be a number from 0 to 100.
 - Provide at least 4 criticalFindings unless the input is too short.

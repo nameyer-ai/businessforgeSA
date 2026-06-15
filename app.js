@@ -388,6 +388,28 @@ Generating executive audit report...`;
         ) {
 
             report += `════════ RECOMMENDED ACTION PLAN ════════\n\n`;
+            if (
+    resultPayload.strategicOpportunities &&
+    resultPayload.strategicOpportunities.length
+) {
+
+    report += `════════ STRATEGIC OPPORTUNITIES ════════\n\n`;
+
+    resultPayload.strategicOpportunities.forEach((item, index) => {
+
+        report += `${index + 1}. ${item.opportunity}\n`;
+
+        if (item.potentialBenefit) {
+            report += `   Potential Benefit: ${item.potentialBenefit}\n`;
+        }
+
+        if (item.recommendedAction) {
+            report += `   Recommended Action: ${item.recommendedAction}\n`;
+        }
+
+        report += `\n`;
+    });
+}
 
             resultPayload.recommendedActions.forEach((action, index) => {
 
