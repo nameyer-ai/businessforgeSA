@@ -418,6 +418,9 @@ module.exports = async function (request, response) {
     const aiResponseRaw = JSON.parse(rawContent);
 
     const verifiedReport = {
+        strategicOpportunities: Array.isArray(aiResponseRaw.strategicOpportunities)
+  ? aiResponseRaw.strategicOpportunities
+  : [],
       status: aiResponseRaw.status || "Analysis concluded.",
       timestamp,
       executiveSummary:
