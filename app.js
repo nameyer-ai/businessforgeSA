@@ -1,8 +1,4 @@
-// ==========================================
-// 1. COMPLETE 13-ARTIFACT CONFIGURATION MAP
-// ==========================================
 const SYNTAX_SYSTEMS_MODULES = [
-    // --- PILLAR 1: COMPLIANCE ---
     {
         id: "coida-specialist",
         name: "COIDA 2022 Specialist",
@@ -59,8 +55,6 @@ const SYNTAX_SYSTEMS_MODULES = [
             "brand-text": "Hey guys! Check out our cheap solutions to fix your corporate stuff real fast. We analyze your systems and guarantee 100% full proof protection from legal hassles, no cap."
         }
     },
-
-    // --- PILLAR 2: PROFIT ENGINE ---
     {
         id: "flowcast",
         name: "FlowCast",
@@ -117,8 +111,6 @@ const SYNTAX_SYSTEMS_MODULES = [
             "rc-data": "Target Focus Phrase: 'SDF consultant Johannesburg'. Current site traffic: 210 monthly unique visitors."
         }
     },
-
-    // --- PILLAR 3: OPERATIONS ---
     {
         id: "procedure-ai",
         name: "ProcedureAI",
@@ -191,18 +183,6 @@ const SYNTAX_SYSTEMS_MODULES = [
     }
 ];
 
-// ==========================================
-// 2. DYNAMIC WORKSPACE ROUTER (THE BRIDGE)
-// ==========================================
-/**
- * Manages UI module state changes within the dashboard workspace layout
- */
-/**
- * Manages UI module state changes within the dashboard workspace layout
- */
-/**
- * Manages UI module state changes within the dashboard workspace layout
- */
 function switchModule(moduleId) {
     console.log("Switching workspace view target to:", moduleId);
     
@@ -212,10 +192,8 @@ function switchModule(moduleId) {
     const workspace = document.getElementById('dynamic-workspace');
     if (!workspace) return;
     
-    // 1. Render the clean dual-pane template onto the workspace
     workspace.innerHTML = `
         <div class="flex-1 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-800 h-full">
-            
             <div class="w-full md:w-1/2 p-6 flex flex-col justify-between overflow-y-auto">
                 <div class="space-y-6">
                     <div>
@@ -238,10 +216,15 @@ function switchModule(moduleId) {
             <div class="w-full md:w-1/2 flex flex-col bg-slate-950/60">
                 <div class="border-b border-slate-800 px-5 py-3 bg-slate-950/40 flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-widest text-slate-400 font-mono">Audit Ledger Transcript</span>
-                    <div class="flex gap-1.5">
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
-                        <span id="pulsing-radar-dot" class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                    <div class="flex items-center gap-4">
+                        <button id="print-ledger-trigger" class="hidden text-[11px] font-mono font-bold bg-slate-900 hover:bg-slate-800 text-indigo-400 border border-slate-800 px-2.5 py-1 rounded-md transition-all flex items-center gap-1">
+                            🖨️ Export PDF
+                        </button>
+                        <div class="flex gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                            <span id="pulsing-radar-dot" class="w-2.5 h-2.5 rounded-full bg-slate-700"></span>
+                        </div>
                     </div>
                 </div>
                 <div id="audit-output-screen" class="p-5 flex-1 text-slate-500 text-sm font-mono whitespace-pre-wrap leading-relaxed overflow-y-auto">
@@ -251,265 +234,294 @@ function switchModule(moduleId) {
         </div>
     `;
 
-    // 2. Build out input fields dynamically based on the active module template
     const inputsContainer = document.getElementById('dynamic-inputs-container');
-    
-    if (moduleId === 'brandguard-auditor') {
-        inputsContainer.innerHTML = `
-            <div class="space-y-2">
-                <label class="block text-[11px] font-mono uppercase tracking-wider text-indigo-400">Target Digital Copy Text</label>
-                <textarea id="audit-text-input" class="w-full h-44 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm font-mono text-white placeholder-slate-700 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Paste marketing page sentences, compliance copy clauses, or contact form data collection scripts here..."></textarea>
-            </div>
-        `;
-    } else {
-        inputsContainer.innerHTML = `
-            <div class="space-y-2">
-                <label class="block text-[11px] font-mono uppercase tracking-wider text-slate-400">Workspace Text Inputs</label>
-                <textarea id="audit-text-input" class="w-full h-44 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm font-mono text-white placeholder-slate-700 focus:outline-none focus:border-slate-700 transition-colors" placeholder="Enter configuration parameters..."></textarea>
-            </div>
-        `;
-    }
+    inputsContainer.innerHTML = `
+        <div class="space-y-2">
+            <label class="block text-[11px] font-mono uppercase tracking-wider text-indigo-400">Workspace Text Input Target</label>
+            <textarea id="audit-text-input" class="w-full h-44 bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm font-mono text-white placeholder-slate-700 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Paste structural configuration logs, employee frameworks, or workspace text content details here..."></textarea>
+        </div>
+    `;
 
-    // 3. Attach the secure listener execution bridge hook to the main button element
     document.getElementById('execution-loop-trigger').onclick = () => {
         executeSecureVercelAudit(moduleId);
     };
 
-    // 4. Attach the dynamic preloaded data injection script handler
     document.getElementById('sample-data-trigger').onclick = () => {
         injectModuleSampleData(moduleId);
     };
+
+    SYNTAX_SYSTEMS_MODULES.forEach(mod => {
+        const btn = document.getElementById(`btn-${mod.id}`);
+        if (btn) {
+            if (mod.id === moduleId) {
+                btn.className = "w-full text-left px-3 py-2.5 rounded-lg bg-slate-800 text-white transition-colors flex items-center gap-2 text-sm font-medium border border-slate-700/60";
+            } else {
+                btn.className = "w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium border border-transparent";
+            }
+        }
+    });
 }
-/**
- * Dispatches input payloads over Vercel's secure firewall edge route
- */
+
 async function executeSecureVercelAudit(moduleId) {
     const outputScreen = document.getElementById('audit-output-screen');
     const statusDot = document.getElementById('pulsing-radar-dot');
-    
-    let textToAnalyze = "";
 
-    // Grab the right form data values depending on active state
-    if (moduleId === 'brandguard-auditor') {
-        const customInput = document.getElementById('audit-text-input');
-        textToAnalyze = customInput ? customInput.value.trim() : "";
-    } else {
-        const standardInput = document.getElementById('standard-module-input');
-        textToAnalyze = standardInput ? standardInput.value.trim() : "";
-    }
+    const inputArea = document.getElementById('audit-text-input');
+    const textToAnalyze = inputArea ? inputArea.value.trim() : "";
 
     if (!textToAnalyze) {
         alert("Please enter script or system text details before running an analysis lifecycle scan.");
         return;
     }
 
-    // Setup interactive processing screen layouts for testers
     if (outputScreen) {
-        outputScreen.innerHTML = `<span class="text-indigo-400">🔄 [SYSTEM TRACE]: Establishing connection handshake via secure api server route layer...\nEvaluating parameters against regulatory frameworks (POPIA/CPA)...</span>`;
-        outputScreen.classList.remove('text-slate-500', 'text-rose-400', 'text-emerald-400');
-        outputScreen.classList.add('text-indigo-400');
+        outputScreen.innerHTML =
+`[🔄 SYSTEM TRACE]
+Establishing secure advisory session...
+Evaluating submitted data against specialist frameworks...
+Generating executive audit report...`;
+
+        outputScreen.style.color = "#818cf8";
     }
-    
+
     if (statusDot) {
-        statusDot.className = "w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse";
+        statusDot.className =
+            "w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse";
     }
 
     try {
-        // Pointing cleanly to your secure, unexposed serverless function
         const response = await fetch('/api/audit', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 textToScan: textToAnalyze,
                 auditType: moduleId
             })
         });
 
-        if (!response.ok) throw new Error(`Handshake transaction error. HTTP status caught: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(
+                `Handshake transaction error. HTTP status caught: ${response.status}`
+            );
+        }
+
         const resultPayload = await response.json();
 
-        // 4. Print clean report results back onto your terminal mockup screen pane
-        if (outputScreen) {
-            outputScreen.classList.remove('text-indigo-400');
-            outputScreen.classList.add('text-slate-300');
-            
-            let structuredOutput = `[✓] RADAR INITIALIZATION COMPLETE\n`;
-            structuredOutput += `--------------------------------------------------\n`;
-            structuredOutput += `STATUS: ${resultPayload.status}\n`;
-            structuredOutput += `COMPLIANCE INDEX RATING: ${resultPayload.complianceScore}%\n`;
-            structuredOutput += `TIMESTAMP LOG: ${resultPayload.timestamp}\n`;
-            structuredOutput += `--------------------------------------------------\n\n`;
-            structuredOutput += `IDENTIFIED CORE FINDINGS:\n\n`;
-            
-            resultPayload.findings.forEach((finding, index) => {
-                structuredOutput += `${index + 1}. [SEVERITY: ${finding.severity}]\n`;
-                structuredOutput += `   CRITIQUE: ${finding.issue}\n\n`;
+        if (!outputScreen) return;
+
+        outputScreen.style.color = "#cbd5e1";
+
+        let report = "";
+
+        report += `═══════════════════════════════════════════════\n`;
+        report += ` BUSINESSFORGESA EXECUTIVE AUDIT REPORT\n`;
+        report += `═══════════════════════════════════════════════\n\n`;
+
+        report += `STATUS: ${resultPayload.status || "Complete"}\n`;
+        report += `RISK RATING: ${resultPayload.overallRiskRating || "Medium"}\n`;
+        report += `COMPLIANCE SCORE: ${resultPayload.complianceScore || 0}%\n`;
+        report += `TIMESTAMP: ${resultPayload.timestamp || "N/A"}\n\n`;
+
+        report += `════════ EXECUTIVE SUMMARY ════════\n`;
+        report += `${resultPayload.executiveSummary || "No executive summary generated."}\n\n`;
+
+        if (
+            resultPayload.keyStrengths &&
+            resultPayload.keyStrengths.length
+        ) {
+            report += `════════ KEY STRENGTHS ════════\n`;
+
+            resultPayload.keyStrengths.forEach((item, index) => {
+                report += `${index + 1}. ${item}\n`;
             });
 
-            outputScreen.innerHTML = structuredOutput;
+            report += `\n`;
+        }
+
+        if (
+            resultPayload.criticalFindings &&
+            resultPayload.criticalFindings.length
+        ) {
+            report += `════════ CRITICAL FINDINGS ════════\n\n`;
+
+            resultPayload.criticalFindings.forEach((finding, index) => {
+
+                report += `${index + 1}. ${finding.category || "General"}\n`;
+                report += `   Severity: ${finding.severity || "Medium"}\n`;
+                report += `   Issue: ${finding.issue || ""}\n`;
+
+                if (finding.impact) {
+                    report += `   Impact: ${finding.impact}\n`;
+                }
+
+                if (finding.recommendation) {
+                    report += `   Recommendation: ${finding.recommendation}\n`;
+                }
+
+                if (finding.priority) {
+                    report += `   Priority: ${finding.priority}\n`;
+                }
+
+                report += `\n`;
+            });
+        }
+
+        if (resultPayload.financialExposure) {
+
+            report += `════════ FINANCIAL EXPOSURE ════════\n`;
+
+            report += `Summary:\n`;
+            report += `${resultPayload.financialExposure.summary || ""}\n\n`;
+
+            report += `Estimated Amount:\n`;
+            report += `${resultPayload.financialExposure.estimatedAmount || ""}\n\n`;
+
+            report += `Calculation Notes:\n`;
+            report += `${resultPayload.financialExposure.calculationNotes || ""}\n\n`;
+        }
+
+        if (
+            resultPayload.recommendedActions &&
+            resultPayload.recommendedActions.length
+        ) {
+
+            report += `════════ RECOMMENDED ACTION PLAN ════════\n\n`;
+
+            resultPayload.recommendedActions.forEach((action, index) => {
+
+                report += `${index + 1}. ${action.action || ""}\n`;
+
+                if (action.priority) {
+                    report += `   Priority: ${action.priority}\n`;
+                }
+
+                if (action.owner) {
+                    report += `   Owner: ${action.owner}\n`;
+                }
+
+                if (action.expectedOutcome) {
+                    report += `   Expected Outcome: ${action.expectedOutcome}\n`;
+                }
+
+                report += `\n`;
+            });
+        }
+
+        if (
+            resultPayload.missingInformation &&
+            resultPayload.missingInformation.length
+        ) {
+
+            report += `════════ ADDITIONAL INFORMATION REQUIRED ════════\n`;
+
+            resultPayload.missingInformation.forEach((item, index) => {
+                report += `${index + 1}. ${item}\n`;
+            });
+
+            report += `\n`;
+        }
+
+        if (
+            resultPayload.nextSteps &&
+            resultPayload.nextSteps.length
+        ) {
+
+            report += `════════ NEXT STEPS ════════\n`;
+
+            resultPayload.nextSteps.forEach((item, index) => {
+                report += `${index + 1}. ${item}\n`;
+            });
+
+            report += `\n`;
+        }
+
+        report += `════════ DISCLAIMER ════════\n`;
+
+        report +=
+            resultPayload.disclaimer ||
+            "This report is AI-generated and should be reviewed by an appropriate professional advisor.";
+
+        outputScreen.innerHTML = report;
+
+        const printBtn =
+            document.getElementById('print-ledger-trigger');
+
+        if (printBtn) {
+            printBtn.classList.remove('hidden');
         }
 
         if (statusDot) {
-            statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+            statusDot.className =
+                "w-2.5 h-2.5 rounded-full bg-emerald-500";
         }
 
     } catch (error) {
-        console.error("Secure execution caught pipeline leak:", error);
+
+        console.error(
+            "Secure execution caught pipeline error:",
+            error
+        );
+
         if (outputScreen) {
-            outputScreen.classList.remove('text-indigo-400');
-            outputScreen.classList.add('text-rose-400');
-            outputScreen.innerHTML = `⚠️ [API EXPORT FAULT]: Serverless function routing connection failure.\n\nDetails: ${error.message}\n\nEnsure repository is uploaded to Vercel and your secure backend folder files matching /api/audit.js remain unchanged.`;
+
+            outputScreen.style.color = "#f87171";
+
+            outputScreen.innerHTML =
+`⚠️ [API EXPORT FAULT]
+
+Serverless function routing failure.
+
+Details:
+${error.message}
+
+Check:
+
+1. Vercel deployment completed.
+2. audit.js saved correctly.
+3. OPENAI_API_KEY exists.
+4. JSON response format remains valid.`;
         }
+
         if (statusDot) {
-            statusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+            statusDot.className =
+                "w-2.5 h-2.5 rounded-full bg-rose-500";
         }
     }
 }
 
-// =========================================================================
-// 3. SECURE BACKEND PIPELINE EXECUTION (POINTING TO NETLIFY FUNCTIONS)
-// =========================================================================
-async function processModuleAudit(moduleId) {
-    console.log("Initiating Secure Netlify Cloud Pipeline for Artifact:", moduleId);
-    
+const MODULE_SAMPLE_DATABASE = {
+    "coida-specialist": `Incident Date: 2026-05-14\nIndustry Sector: Light Industrial Engineering\nEvent Narrative: Assistant technician sustained a laceration on the left forearm while operating a stationary grinding unit. Incident logged in internal register within 24 hours. Medical treatment received at local clinic. Urgent requirement to generate a compliant COIDA Section 24 employer report package to mitigate statutory non-compliance penalties.`,
+    "seta-navigator": `Company Profile: Merchandising & Logistics Enterprise\nAnnual Payroll (SDL Taxable): R850,000\nWorkplace Skills Plan (WSP) Status: Draft completed but alignment metrics unverified.\nTarget Objective: Map internal software training and staff onboarding hours against specific SETA unit standards to safely claim back the 20% Mandatory Grant allocation before the upcoming annual submission deadline window closes.`,
+    "claralex": `Legal Dilemma Context: An independent service provider was contracted under a fixed 3-month operational mandate. The project has concluded, but the contractor is now claiming expectations of permanent employment under the Labour Relations Act (LRA), citing the continuous use of company equipment and access to internal communication channels. Requesting clear risk mitigation paths in everyday language.`,
+    "brandguard-auditor": `Welcome to our platform! Fill out this digital questionnaire to initialize your profile. By clicking submit, you explicitly agree to receive promotional text messages, automated calls, and third-party marketing offers from our corporate partners. We track your precise location via background browser cookies to optimize your delivery stream. No manual opt-out checkboxes are provided because continuing past this interface implies full contractual consent under our localized service terms.`,
+    "flowcast": `Starting Cash Reserve: R95,000\nProjected Inbound Receivables (Day 1-30): R140,000\nProjected Inbound Receivables (Day 31-60): R60,000\nFixed Operational Debits (Salaries & Rent): R85,000/month\nVariable Supplier Invoices Due (Day 15): R45,000\nTax Commitments (Provisional VAT Due): R32,000`,
+    "margin-protector": `Quoted Service Package Value: R65,000\nDirect Labor Allocation: 120 Hours @ R250/hour\nRaw Consumables & Material Procurement: R18,500\nSubcontractor Specialized Fees: R7,000\nLogistical Transport & Site Setup Allowances: R4,500\nObserved Slippage Margin: Historical 10% operational cost overrun on similar client handoffs.`,
+    "quoteforge": `Target Client Profile: Corporate Financial Institution\nProject Mandate: Turnkey office automation and document management system migration.\nCore Competitive Edge: 100% local support desk response times under 2 hours, built-in POPIA encryption standards, and a completely flat-fee pricing tier. Need a high-closing proposal outline that highlights structural stability.`,
+    "rankcraft": `Primary Business Niche: Commercial Commercial Pest Control\nTarget Geographic Focus: Johannesburg Northern Suburbs (Sandton, Randburg, Midrand)\nPrimary Competitor Profile: Large national franchises utilizing heavy Google Ads spend.\nCore Constraint: Budget is strictly limited; must capture organic local visibility through targeted search positioning rather than paid clicks.`,
+    "procedure-ai": `Task Process Profile: End-of-Day Point of Sale (POS) Reconciliation and Physical Cash Vault Deposit.\nResponsible Staff Tier: Junior Shift Supervisor\nCurrent Friction Points: Frequent shortfalls in manual ledger balancing, missing supervisor signatures on physical tracking slips, and general confusion regarding the exact protocol to follow if a variance is detected.`,
+    "hireforge": `Job Profile: Senior Customer Success Associate\nKey Competencies: High emotional intelligence, fluent corporate English, experience with CRM software ticketing architecture, and basic dispute de-escalation tactics.\nCandidate Interview Answers: Demonstrates excellent communication skills but exhibits a history of switching employers every 6 months.`,
+    "review-ai": `Employee Review Framework: 6-Month Mid-Year Operational Performance Audit\nStaff Member Role: Internal Inventory & Warehouse Clerk\nPerformance Metrics: Exceptional score on physical accuracy and barcode tracking (98%); critical score drop on shift punctuality and internal communication responsiveness. Team collaboration notes show frequent friction.`,
+    "voiceforge": `Internal Communication Objective: Announce a critical structural change to the company's monthly commission and performance bonus calculation metrics.\nTarget Audience: Core Outbound Sales and Account Management Teams\nCore Directive: Transition from a flat-rate payout structure to a tiered, performance-linked matrix. Tone must remain motivating, clear, and focused on growth without sparking internal panic.`,
+    "retainiq": `Client Account Status: Flagged for high churn risk.\nSubscription Profile: Active 18 months, medium enterprise level, recent drop in daily platform login metrics by 65% over the past 30 days.\nCustomer Feedback Log: Complained about a slow interface speed during historical document generation loops via a support ticket closed last week.`
+};
+
+function injectModuleSampleData(moduleId) {
+    const inputArea = document.getElementById('audit-text-input');
     const outputScreen = document.getElementById('audit-output-screen');
-    const targetModule = SYNTAX_SYSTEMS_MODULES.find(m => m.id === moduleId);
+    const sampleText = MODULE_SAMPLE_DATABASE[moduleId] || `Sample placeholder data matrix for target workspace ID: \${moduleId}`;
     
-    if (!outputScreen || !targetModule) return;
-
-    // Set loading state
-    outputScreen.className = "p-5 flex-1 text-indigo-400 text-sm font-mono animate-pulse whitespace-pre-wrap";
-    outputScreen.innerHTML = `[CONNECTING]: Contacting secure Netlify backend vault...\n[PROCESSING]: Running specialized BusinessForgeSA audit frameworks via cloud middleman...`;
-
-    const collectedInputs = {};
-    let missingField = false;
-
-    targetModule.inputs.forEach(input => {
-        const inputElement = document.getElementById(input.id);
-        if (inputElement) {
-            collectedInputs[input.id] = inputElement.value.trim();
-            if (!collectedInputs[input.id]) missingField = true;
+    if (inputArea) {
+        inputArea.value = sampleText.trim();
+        if (outputScreen) {
+            outputScreen.style.color = "#94a3b8";
+            outputScreen.innerHTML = `[i] Live module sample data successfully loaded into input panel matrix.\nPress "Execute Secure Audit Loop" to analyze this text structure...`;
         }
-    });
-
-    if (missingField) {
-        outputScreen.className = "p-5 flex-1 text-rose-400 text-sm font-mono whitespace-pre-wrap";
-        outputScreen.innerHTML = `[INPUT ERROR]: Verification failed. All parameter data fields are mandatory.`;
-        return;
-    }
-
-    try {
-        // --- SECURITY REMASTER: WE CALL THE RELATIVE SERVERLESS PATH INSSTEAD OF GOOGLE DIRECTLY ---
-        const apiTargetUrl = "/.netlify/functions/audit-engine";
-        console.log("Pinging local secure middleman function...");
-
-        const response = await fetch(apiTargetUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                moduleId: moduleId,
-                inputs: collectedInputs
-            })
-        });
-
-        const apiData = await response.json();
-        
-        // Match the structural return parameter output of audit-engine.js ({ output: aiAnalysis })
-        if (response.ok && apiData.output) {
-            const aiAnalysis = apiData.output;
-            
-            outputScreen.className = "flex flex-col flex-1 h-full max-h-[500px] overflow-hidden";
-            outputScreen.innerHTML = `
-                <div class="flex items-center justify-between p-3 border-b border-slate-800 bg-slate-950/50">
-                    <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">Audit Ledger Verified</span>
-                    <button onclick="exportAuditToPDF('${targetModule.name}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 px-3 rounded-lg transition-all text-xs font-mono shadow-sm flex items-center space-x-1">
-                        <span>📥 Export PDF Report</span>
-                    </button>
-                </div>
-                <div id="printable-audit-content" class="p-5 flex-1 text-slate-200 text-sm overflow-y-auto leading-relaxed space-y-4 whitespace-pre-wrap">
-${aiAnalysis}
-                </div>
-            `;
-        } else {
-            console.error("Netlify serverless function rejection details:", apiData);
-            outputScreen.className = "p-5 flex-1 text-rose-400 text-sm font-mono whitespace-pre-wrap";
-            outputScreen.innerHTML = `[API ERROR]: Serverless function execution failed. Code: ${apiData.error ? apiData.error : 'UNKNOWN'}`;
-        }
-
-    } catch (networkError) {
-        console.error("Cloud middleman communication failure:", networkError);
-        outputScreen.className = "p-5 flex-1 text-rose-400 text-sm font-mono whitespace-pre-wrap";
-        outputScreen.innerHTML = `[CONNECTION ERROR]: Failed to contact your Netlify environment. Ensure site is deployed.`;
     }
 }
 
-// AUTOMATIC DEMO DATA INJECTOR
-function loadModuleDemoData(moduleId) {
-    const targetModule = SYNTAX_SYSTEMS_MODULES.find(m => m.id === moduleId);
-    if (!targetModule || !targetModule.demoData) {
-        console.warn(`No demo data layout verified for module: ${moduleId}`);
-        return;
-    }
-
-    Object.entries(targetModule.demoData).forEach(([inputId, sampleValue]) => {
-        const inputField = document.getElementById(inputId);
-        if (inputField) {
-            inputField.value = sampleValue;
-            inputField.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-    });
-    
-    console.log(`Demo data successfully injected for artifact: ${moduleId}`);
-}
-
-// ISOLATED AUDIT LEDGER PDF EXPORTER
-function exportAuditToPDF(moduleName) {
-    const contentElement = document.getElementById('printable-audit-content');
-    if (!contentElement) return;
-
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    const reportStyles = `
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6; }
-            .header { border-bottom: 2px solid #4f46e5; padding-bottom: 15px; margin-bottom: 30px; }
-            .title { font-size: 24px; font-weight: bold; color: #0f172a; margin: 0; }
-            .subtitle { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
-            .content { font-size: 14px; white-space: pre-wrap; color: #334155; }
-            @media print { body { padding: 0; } @page { margin: 2cm; } }
-        </style>
-    `;
-
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>BusinessForgeSA - ${moduleName} Audit</title>
-            ${reportStyles}
-        </head>
-        <body>
-            <div class="header">
-                <div class="title">${moduleName} Ledger Report</div>
-                <div class="subtitle">Generated via BusinessForgeSA Advisory Core • System Verified</div>
-            </div>
-            <div class="content">${contentElement.innerText}</div>
-        </body>
-        </html>
-    `);
-
-    printWindow.document.close();
-    printWindow.focus();
-    
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 250);
-}
-
-// ==========================================
-// 4. LANDING INTERFACE HUB CONTROL ROUTER
-// ==========================================
 function showWelcomeDashboard() {
-    console.log("Loading default platform onboarding dashboard layout...");
-    
     const workspace = document.getElementById('dynamic-workspace');
     if (!workspace) return;
 
@@ -522,10 +534,6 @@ function showWelcomeDashboard() {
                     Welcome to BusinessForgeSA. This automated corporate advisory environment processes raw audit telemetry parameters across compliance, financial forecasting, and operational procedures.
                 </p>
             </div>
-            <a href="operating-instructions.pdf" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono font-bold py-3 px-4 rounded-xl border border-slate-700 shrink-0 transition-all flex items-center gap-2">
-                    📖 Instruction Manual (.PDF)
-                </a>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="p-5 rounded-xl bg-slate-950/40 border border-slate-800/80">
                     <div class="text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">🛡️ Pillar 01</div>
@@ -535,7 +543,7 @@ function showWelcomeDashboard() {
                 <div class="p-5 rounded-xl bg-slate-950/40 border border-slate-800/80">
                     <div class="text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">📈 Pillar 02</div>
                     <h3 class="text-slate-200 font-bold text-sm">Profit Engine</h3>
-                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Isolate margin erosion targets, manage cash runway parameters, and secure business estimations.</p>
+                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Isolate margin erosion targets, manage cash runwayparameters, and secure business estimations.</p>
                 </div>
                 <div class="p-5 rounded-xl bg-slate-950/40 border border-slate-800/80">
                     <div class="text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">⚙️ Pillar 03</div>
@@ -543,138 +551,22 @@ function showWelcomeDashboard() {
                     <p class="text-slate-400 text-xs mt-2 leading-relaxed">Convert tribal workflows into repeatable Standard Operating Procedures and performance trackers.</p>
                 </div>
             </div>
-
-            <div class="bg-indigo-950/20 border border-indigo-900/40 p-5 rounded-xl flex items-start space-x-4">
-                <span class="text-indigo-400 text-xl mt-0.5">⚡</span>
-                <div>
-                    <h4 class="text-indigo-300 font-semibold text-xs font-mono uppercase tracking-wider">Initialization Instructions</h4>
-                    <p class="text-slate-300 text-xs mt-1.5 leading-relaxed">
-                        To initiate a live advisory data loop, manage parameter targets, or review transcripts, select an active operational module from the left control terminal sidebar menu.
-                    </p>
-                </div>
-            </div>
         </div>
     `;
+}
 
+function initializeApplicationCore() {console.log("Mounting sidebar event hooks to configuration artifacts...");
+    
     SYNTAX_SYSTEMS_MODULES.forEach(mod => {
-        const btn = document.getElementById(`btn-${mod.id}`);
-        if (btn) {
-            btn.className = "w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium";
+        const sidebarButton = document.getElementById(`btn-${mod.id}`);
+        if (sidebarButton) {
+            sidebarButton.onclick = () => {
+                switchModule(mod.id);
+            };
         }
     });
+
+    showWelcomeDashboard();
 }
 
-// Run default layout load immediately on initiation
-showWelcomeDashboard();
-
-console.log("BusinessForgeSA Core Engine Map successfully injected and secured.");
-
-/**
- * Dispatches input payloads over Vercel's secure firewall edge route
- */
-async function executeSecureVercelAudit(moduleId) {
-    const outputScreen = document.getElementById('audit-output-screen');
-    const statusDot = document.getElementById('pulsing-radar-dot');
-    
-    const inputArea = document.getElementById('audit-text-input');
-    const textToAnalyze = inputArea ? inputArea.value.trim() : "";
-
-    if (!textToAnalyze) {
-        alert("Please enter script or system text details before running an analysis lifecycle scan.");
-        return;
-    }
-
-    if (outputScreen) {
-        outputScreen.innerHTML = `[🔄 SYSTEM TRACE]: Establishing connection handshake via secure Vercel edge layer...\nEvaluating parameters against regulatory frameworks (POPIA/CPA)...`;
-        outputScreen.style.color = "#818cf8"; // Indigo processing state text
-    }
-    
-    if (statusDot) {
-        statusDot.className = "w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse";
-    }
-
-    try {
-        const response = await fetch('/api/audit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                textToScan: textToAnalyze,
-                auditType: moduleId
-            })
-        });
-
-        if (!response.ok) throw new Error(`Handshake transaction error. HTTP status caught: ${response.status}`);
-        const resultPayload = await response.json();
-
-        // Ensure findings list exists before trying to loop over it
-        if (outputScreen && resultPayload && Array.isArray(resultPayload.findings)) {
-            outputScreen.style.color = "#cbd5e1"; // Clean text color reset
-            
-            let structuredOutput = `[✓] RADAR INITIALIZATION COMPLETE\n`;
-            structuredOutput += `--------------------------------------------------\n`;
-            structuredOutput += `STATUS: ${resultPayload.status || "Complete"}\n`;
-            structuredOutput += `COMPLIANCE INDEX RATING: ${resultPayload.complianceScore || 100}%\n`;
-            structuredOutput += `TIMESTAMP LOG: ${resultPayload.timestamp || "ACTIVE"}\n`;
-            structuredOutput += `--------------------------------------------------\n\n`;
-            structuredOutput += `IDENTIFIED CORE FINDINGS:\n\n`;
-            
-            resultPayload.findings.forEach((finding, index) => {
-                structuredOutput += `${index + 1}. [SEVERITY: ${finding.severity}]\n`;
-                structuredOutput += `   CRITIQUE: ${finding.issue}\n\n`;
-            });
-
-            outputScreen.innerHTML = structuredOutput;
-        } else {
-            throw new Error("Backend response package format mismatch.");
-        }
-
-        if (statusDot) {
-            statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
-        }
-
-    } catch (error) {
-        console.error("Secure execution caught pipeline error:", error);
-        if (outputScreen) {
-            outputScreen.style.color = "#f87171"; // Rose error text
-            outputScreen.innerHTML = `⚠️ [API EXPORT FAULT]: Serverless function routing connection failure.\n\nDetails: ${error.message}\n\nEnsure repository is uploaded to Vercel and your secure backend folder files matching /api/audit.js match perfectly.`;
-        }
-        if (statusDot) {
-            statusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-        }
-    }
-}
-/**
- * Repository of pre-loaded sample text values for your modules
- */
-const MODULE_SAMPLE_DATABASE = {
-    "brandguard-auditor": `Welcome to our platform! Fill out this form to sign up. By clicking submit, you agree to receive promotional text messages and marketing offers from our corporate partners. We track your location to optimize your service delivery pipeline. No opt-out box is required because your registration implies consent under standard local terms.`,
-    
-    "margin-protection": `Cost of Goods Sold (COGS): R45,000\nTarget Wholesale Unit Volume: 1,200 units\nRaw Materials Overhead Markups: 14%\nCompetitor Base Pricing Index: R85.00/unit`,
-    
-    "cashflow-forecasting": `Current Cash Reserve: R120,000\nExpected Receivables (30 Days): R85,000\nFixed Operational Debits (Salaries/Rent): R65,000\nVariable Supply Invoices: R40,000`
-};
-
-/**
- * Automatically injects the precise module sample copy right into the textarea container
- */
-function injectModuleSampleData(moduleId) {
-    const inputArea = document.getElementById('audit-text-input');
-    const outputScreen = document.getElementById('audit-output-screen');
-    
-    // Retrieve the sample text context from our dictionary pool
-    const sampleText = MODULE_SAMPLE_DATABASE[moduleId] || `Sample placeholder data matrix for target workspace ID: \${moduleId}`;
-    
-    if (inputArea) {
-        inputArea.value = sampleText.trim();
-        console.log(`Successfully preloaded sample matrix for workspace context: \${moduleId}`);
-        
-        // Give optional status indicator log back to the transcript ledger pane
-        if (outputScreen) {
-            outputScreen.classList.remove('text-indigo-400', 'text-rose-400', 'text-emerald-400');
-            outputScreen.classList.add('text-slate-400');
-            outputScreen.innerHTML = `[i] Live module sample data successfully loaded into input panel matrix.\nPress "Execute Secure Audit Loop" to analyze this text structure...`;
-        }
-    } else {
-        console.error("Target input area view element not found in active workspace layout.");
-    }
-}
+window.onload = initializeApplicationCore;
