@@ -1,0 +1,25 @@
+{
+  "name": "businessforge-deploy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nameyer-ai/businessforgesa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nameyer-ai/businessforgesa/issues"
+  },
+  "homepage": "https://github.com/nameyer-ai/businessforgesa#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "openai": "^6.42.0"
+  }
+}
