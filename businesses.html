@@ -50,7 +50,7 @@ input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px
 <div class="field"><label>Website</label><input id="website"></div>
 <div class="field"><label>Status</label><select id="status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
 <div class="field wide"><label>Notes</label><textarea id="notes"></textarea></div>
-<div class="row wide"><button class="primary" type="submit">Save Business</button><button id="reset" class="secondary" type="button">Clear Form</button></div>
+<div class="row wide"><button class="primary" type="submit">Save Business</button><button id="clearForm" class="secondary" type="button">Clear Form</button></div>
 </form>
 <div id="formError" class="error"></div><div id="formSuccess" class="success"></div>
 </section>
@@ -75,7 +75,7 @@ async function save(e){e.preventDefault();const v=values();try{const method=v.id
 function edit(id){const b=state.businesses.find(x=>x.business_id===id);if(!b)return;$("id").value=b.business_id;$("businessName").value=b.business_name||"";$("industry").value=b.industry||"";$("province").value=b.province||"";$("status").value=b.status||"active";$("formTitle").textContent="Edit Business";window.scrollTo({top:0,behavior:"smooth"})}
 async function disable(id){if(!confirm("Mark this business as inactive? Existing audits will remain."))return;try{await request("DELETE",null,id);await load()}catch(err){alert(err.message)}}
 async function unlock(){state.key=$("key").value.trim();if(!state.key)return;try{await load();sessionStorage.setItem("bfsa_history_key",state.key);$("login").classList.add("hidden");$("app").classList.remove("hidden")}catch(e){$("loginError").textContent=e.message;$("loginError").style.display="block"}}
-$("unlock").onclick=unlock;$("refresh").onclick=()=>load().catch(e=>alert(e.message));$("lock").onclick=()=>{sessionStorage.removeItem("bfsa_history_key");location.reload()};$("form").onsubmit=save;$("reset").onclick=reset;$("key").onkeydown=e=>{if(e.key==="Enter")unlock()};if(state.key){$("key").value=state.key;unlock()}
+$("unlock").onclick=unlock;$("refresh").onclick=()=>load().catch(e=>alert(e.message));$("lock").onclick=()=>{sessionStorage.removeItem("bfsa_history_key");location.reload()};$("form").onsubmit=save;$("clearForm").onclick=reset;$("key").onkeydown=e=>{if(e.key==="Enter")unlock()};if(state.key){$("key").value=state.key;unlock()}
 </script>
 </body>
 </html>
