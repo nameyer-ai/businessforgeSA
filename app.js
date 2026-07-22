@@ -351,6 +351,107 @@ function closeEnterpriseModal(id) {
     document.getElementById(id)?.remove();
 }
 
+function getAuditPillar(moduleId) {
+    return SYNTAX_SYSTEMS_MODULES.find(item => item.id === moduleId)?.pillar || "unclassified";
+}
+
+function calculateAverageScore(records) {
+    if (!records.length) return null;
+    return Math.round(records.reduce((total, item) => total + Number(item.complianceScore || 0), 0) / records.length);
+}
+
+function calculatePillarScore(records, pillar) {
+    return calculateAverageScore(records.filter(item => getAuditPillar(item.moduleId) === pillar));
+}
+
+function getScoreStatus(score) {
+    if (score === null) return { label: "Not measured", className: "neutral" };
+    if (score >= 80) return { label: "Strong", className: "good" };
+    if (score >= 60) return { label: "Watch", className: "watch" };
+    return { label: "Attention", className: "danger" };
+}
+
+function calculateTrend(records) {
+    if (records.length < 2) return null;
+    const recent = records.slice(0, Math.min(5, records.length));
+    const previous = records.slice(recent.length, recent.length * 2);
+    if (!previous.length) {
+        return Number(recent[0].complianceScore || 0) - Number(recent[recent.length - 1].complianceScore || 0);
+    }
+    return calculateAverageScore(recent) - calculateAverageScore(previous);
+}
+
+function buildExecutiveAlerts(records) {
+    const alerts = [];
+    const latestByModule = new Map();
+    records.forEach(record => {
+        if (!latestByModule.has(record.moduleId)) latestByModule.set(record.moduleId, record);
+    });
+
+    [...latestByModule.values()].forEach(record => {
+        const score = Number(record.complianceScore || 0);
+        const risk = String(record.riskRating || "").toLowerCase();
+        if (risk === "high" || score < 50) {
+            alerts.push({
+                tone: "danger",
+                icon: "!",
+                title: `${record.moduleName} requires attention`,
+                detail: `${record.riskRating || "Unrated"} risk · ${score}% score`
+            });
+        } else if (risk === "medium" || score < 70) {
+            alerts.push({
+                tone: "watch",
+                icon: "•",
+                title: `${record.moduleName} should be reviewed`,
+                detail: `${record.riskRating || "Unrated"} risk · ${score}% score`
+            });
+        }
+    });
+
+    if (!alerts.length && records.length) {
+        alerts.push({
+            tone: "good",
+            icon: "✓",
+            title: "No immediate high-risk signals",
+            detail: "Recent locally recorded audits contain no high-risk result."
+        });
+    }
+
+    return alerts.slice(0, 5);
+}
+
+function buildExecutiveBriefing(active, records, scores, trend, highRisk) {
+    if (!active) {
+        return "Select or create a business profile to activate business-specific executive intelligence.";
+    }
+    if (!records.length) {
+        return `${active.business_name} is ready for analysis. Run the first specialist engine to establish a measurable business-health baseline.`;
+    }
+
+    const measured = Object.entries(scores).filter(([, value]) => value !== null);
+    const strongest = measured.sort((a, b) => b[1] - a[1])[0];
+    const weakest = measured.sort((a, b) => a[1] - b[1])[0];
+    const labels = { compliance: "compliance", "profit engine": "profit", operations: "operations" };
+    const trendText = trend === null ? "A trend will become available after more audits." : trend > 0 ? `The recent score trend is improving by ${trend} points.` : trend < 0 ? `The recent score trend has declined by ${Math.abs(trend)} points.` : "Recent scores are stable.";
+    const riskText = highRisk ? `${highRisk} high-risk result${highRisk === 1 ? "" : "s"} require review.` : "No high-risk result is currently recorded.";
+    const strengthText = strongest ? `The strongest measured pillar is ${labels[strongest[0]] || strongest[0]} at ${strongest[1]}%.` : "No pillar score is available yet.";
+    const weaknessText = weakest && strongest && weakest[0] !== strongest[0] ? ` The lowest measured pillar is ${labels[weakest[0]] || weakest[0]} at ${weakest[1]}%.` : "";
+
+    return `${active.business_name}: ${strengthText}${weaknessText} ${riskText} ${trendText}`;
+}
+
+function renderScoreCard(label, score, note) {
+    const status = getScoreStatus(score);
+    return `<div class="enterprise-card intelligence-score-card">
+        <div class="flex items-start justify-between gap-3">
+            <div><div class="kpi-label">${escapeHtml(label)}</div><div class="kpi-value">${score === null ? "—" : `${score}%`}</div></div>
+            <span class="intelligence-status ${status.className}">${status.label}</span>
+        </div>
+        <div class="score-track"><span style="width:${score === null ? 0 : Math.max(0, Math.min(100, score))}%"></span></div>
+        <div class="kpi-note">${escapeHtml(note)}</div>
+    </div>`;
+}
+
 function showExecutiveDashboard() {
     ENTERPRISE_STATE.currentView = "dashboard";
     setActiveNavigation("nav-executive-dashboard");
@@ -361,41 +462,90 @@ function showExecutiveDashboard() {
     const active = getActiveBusiness();
     const businessHistory = active ? ENTERPRISE_STATE.auditHistory.filter(item => item.businessId === active.id) : ENTERPRISE_STATE.auditHistory;
     const latest = businessHistory[0];
-    const averageScore = businessHistory.length ? Math.round(businessHistory.reduce((total, item) => total + Number(item.complianceScore || 0), 0) / businessHistory.length) : 0;
+    const overallScore = calculateAverageScore(businessHistory);
+    const complianceScore = calculatePillarScore(businessHistory, "compliance");
+    const profitScore = calculatePillarScore(businessHistory, "profit engine");
+    const operationsScore = calculatePillarScore(businessHistory, "operations");
     const highRisk = businessHistory.filter(item => String(item.riskRating || "").toLowerCase() === "high").length;
+    const trend = calculateTrend(businessHistory);
+    const alerts = buildExecutiveAlerts(businessHistory);
+    const briefing = buildExecutiveBriefing(active, businessHistory, {
+        compliance: complianceScore,
+        "profit engine": profitScore,
+        operations: operationsScore
+    }, trend, highRisk);
 
     workspace.innerHTML = `
         <div id="workspace-notice"></div>
         ${!getManagementKey() ? '<div class="notice info">Connect the owner management key to load live businesses and database metrics. <button class="ml-2 underline font-bold" onclick="openManagementKeyDialog(\'dashboard\')">Connect now</button></div>' : ''}
-        <div class="enterprise-card mb-4">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <div class="enterprise-eyebrow">Active operating entity</div>
-                    <div class="text-2xl font-black mt-1">${escapeHtml(active?.business_name || "Select or create a business")}</div>
-                    <div class="text-xs text-slate-400 mt-2">${escapeHtml(active?.industry || "No industry configured")} · ${escapeHtml(active?.city || active?.province || "Location not configured")}</div>
+
+        <section class="executive-hero enterprise-card mb-4">
+            <div class="executive-hero-copy">
+                <div class="enterprise-eyebrow">Executive intelligence briefing</div>
+                <h2>${escapeHtml(active?.business_name || "BusinessForge Command Centre")}</h2>
+                <p>${escapeHtml(briefing)}</p>
+                <div class="executive-context-line">
+                    <span>${escapeHtml(active?.industry || "Industry not configured")}</span>
+                    <span>${escapeHtml(active?.city || active?.province || "Location not configured")}</span>
+                    <span>${escapeHtml(active?.edition_code || "ZA")} Edition</span>
+                    <span>${escapeHtml(active?.currency_code || "ZAR")}</span>
                 </div>
-                <button class="secondary-button" onclick="showBusinessProfiles()">Manage businesses</button>
+            </div>
+            <div class="executive-health-orb ${getScoreStatus(overallScore).className}">
+                <span>${overallScore === null ? "—" : overallScore}</span>
+                <small>${overallScore === null ? "No baseline" : "Health score"}</small>
+            </div>
+        </section>
+
+        <div class="dashboard-grid intelligence-kpis">
+            ${renderScoreCard("Compliance", complianceScore, "COIDA, SETA, legal and brand audits")}
+            ${renderScoreCard("Profit", profitScore, "Cash flow, margin, quotes and visibility")}
+            ${renderScoreCard("Operations", operationsScore, "Procedures, people and retention")}
+            <div class="enterprise-card intelligence-score-card">
+                <div class="flex items-start justify-between gap-3">
+                    <div><div class="kpi-label">Risk signals</div><div class="kpi-value">${highRisk}</div></div>
+                    <span class="intelligence-status ${highRisk ? "danger" : businessHistory.length ? "good" : "neutral"}">${highRisk ? "Review" : businessHistory.length ? "Clear" : "No data"}</span>
+                </div>
+                <div class="metric-detail">${businessHistory.length} completed audit${businessHistory.length === 1 ? "" : "s"}</div>
+                <div class="kpi-note">${trend === null ? "Trend needs more results" : trend > 0 ? `Recent trend +${trend} points` : trend < 0 ? `Recent trend ${trend} points` : "Recent trend stable"}</div>
             </div>
         </div>
-        <div class="dashboard-grid kpis">
-            <div class="enterprise-card"><div class="kpi-label">Businesses</div><div class="kpi-value">${ENTERPRISE_STATE.businesses.filter(item => item.status !== "inactive").length}</div><div class="kpi-note">Active profiles</div></div>
-            <div class="enterprise-card"><div class="kpi-label">Completed audits</div><div class="kpi-value">${businessHistory.length}</div><div class="kpi-note">For current scope</div></div>
-            <div class="enterprise-card"><div class="kpi-label">Compliance position</div><div class="kpi-value">${averageScore}%</div><div class="kpi-note">Average local score</div></div>
-            <div class="enterprise-card"><div class="kpi-label">High-risk flags</div><div class="kpi-value">${highRisk}</div><div class="kpi-note">Requires attention</div></div>
-        </div>
-        <div class="dashboard-two-column">
+
+        <div class="dashboard-two-column intelligence-main-grid">
             <div class="enterprise-card">
-                <div class="enterprise-card-title">Intelligence engines</div>
-                <div class="enterprise-card-subtitle">Launch an engine in the context of ${escapeHtml(active?.business_name || "the selected business")}.</div>
+                <div class="flex items-start justify-between gap-3">
+                    <div><div class="enterprise-card-title">Executive alerts</div><div class="enterprise-card-subtitle">Prioritised from the latest locally recorded result for each engine.</div></div>
+                    <button class="secondary-button" onclick="showAuditHistory()">Audit history</button>
+                </div>
+                <div class="executive-alert-list">
+                    ${alerts.length ? alerts.map(alert => `<div class="executive-alert ${alert.tone}"><span class="alert-icon">${alert.icon}</span><div><strong>${escapeHtml(alert.title)}</strong><p>${escapeHtml(alert.detail)}</p></div></div>`).join("") : '<div class="empty-state compact">Run an audit to generate the first executive alert.</div>'}
+                </div>
+            </div>
+
+            <div class="enterprise-card">
+                <div class="enterprise-card-title">Latest intelligence</div>
+                <div class="enterprise-card-subtitle">Most recent result for the current business.</div>
+                ${latest ? `<div class="latest-intelligence-panel"><div class="latest-module">${escapeHtml(latest.moduleName)}</div><div class="profile-meta">${escapeHtml(latest.businessName)}<br>${escapeHtml(latest.timestamp)}</div><div class="profile-tags"><span class="profile-tag">${escapeHtml(latest.riskRating || "Unrated")}</span><span class="profile-tag">${Number(latest.complianceScore || 0)}%</span></div><button class="primary-button mt-5" onclick="switchModule('${escapeHtml(latest.moduleId)}')">Run again</button></div>` : '<div class="empty-state">No audits recorded for this business yet.</div>'}
+            </div>
+        </div>
+
+        <div class="enterprise-card">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+                <div><div class="enterprise-card-title">Quick launch</div><div class="enterprise-card-subtitle">Start with a core executive engine or open the full specialist catalogue below.</div></div>
+                <button class="secondary-button" onclick="showBusinessProfiles()">Manage businesses</button>
+            </div>
+            <div class="priority-launch-grid">
+                ${["flowcast", "coida-specialist", "quoteforge", "procedure-ai"].map(id => {
+                    const module = SYNTAX_SYSTEMS_MODULES.find(item => item.id === id);
+                    return `<button class="priority-launch-card" onclick="switchModule('${module.id}')"><span>${escapeHtml(module.name)}</span><small>${escapeHtml(module.pillar)}</small></button>`;
+                }).join("")}
+            </div>
+            <details class="engine-catalogue">
+                <summary>Open all 13 intelligence engines</summary>
                 <div class="module-launch-grid">
                     ${SYNTAX_SYSTEMS_MODULES.map(module => `<button class="module-launch-card" onclick="switchModule('${module.id}')"><div class="module-launch-name">${escapeHtml(module.name)}</div><div class="module-launch-pillar">${escapeHtml(module.pillar)}</div></button>`).join("")}
                 </div>
-            </div>
-            <div class="enterprise-card">
-                <div class="enterprise-card-title">Latest intelligence</div>
-                <div class="enterprise-card-subtitle">Most recent locally recorded audit.</div>
-                ${latest ? `<div class="mt-5"><div class="text-sm font-black">${escapeHtml(latest.moduleName)}</div><div class="profile-meta">${escapeHtml(latest.businessName)}<br>${escapeHtml(latest.timestamp)}</div><div class="profile-tags"><span class="profile-tag">${escapeHtml(latest.riskRating || "Unrated")}</span><span class="profile-tag">${Number(latest.complianceScore || 0)}%</span></div><button class="secondary-button mt-5" onclick="showAuditHistory()">Open history</button></div>` : '<div class="empty-state">No audits recorded in this browser yet.</div>'}
-            </div>
+            </details>
         </div>`;
 }
 
