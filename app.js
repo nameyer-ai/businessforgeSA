@@ -183,11 +183,377 @@ const SYNTAX_SYSTEMS_MODULES = [
     }
 ];
 
+
+
+const ENTERPRISE_STATE = {
+    businesses: [],
+    activeBusinessId: localStorage.getItem("businessforge_active_business_id") || "",
+    auditHistory: JSON.parse(localStorage.getItem("businessforge_audit_history") || "[]"),
+    currentView: "dashboard"
+};
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function formatNumber(value) {
+    const number = Number(value || 0);
+    return new Intl.NumberFormat("en-ZA", { maximumFractionDigits: 0 }).format(number);
+}
+
+function setWorkspaceHeading(kicker, title) {
+    const kickerNode = document.getElementById("workspace-kicker");
+    const titleNode = document.getElementById("workspace-title");
+    if (kickerNode) kickerNode.textContent = kicker;
+    if (titleNode) titleNode.textContent = title;
+}
+
+function clearActiveNavigation() {
+    document.querySelectorAll(".enterprise-nav-item.active").forEach(node => node.classList.remove("active"));
+}
+
+function setActiveNavigation(id) {
+    clearActiveNavigation();
+    const node = document.getElementById(id);
+    if (node) node.classList.add("active");
+}
+
+function toggleEnterpriseSidebar() {
+    document.getElementById("enterprise-sidebar")?.classList.toggle("collapsed");
+}
+
+function getManagementKey() {
+    return sessionStorage.getItem("businessforge_management_key") || "";
+}
+
+function saveManagementKey(value) {
+    const key = String(value || "").trim();
+    if (key) sessionStorage.setItem("businessforge_management_key", key);
+    else sessionStorage.removeItem("businessforge_management_key");
+}
+
+function getActiveBusiness() {
+    return ENTERPRISE_STATE.businesses.find(item => item.id === ENTERPRISE_STATE.activeBusinessId) || null;
+}
+
+function getBusinessName(businessId) {
+    return ENTERPRISE_STATE.businesses.find(item => item.id === businessId)?.business_name || "Unassigned business";
+}
+
+function updateActiveBusinessControls() {
+    const selector = document.getElementById("active-business-select");
+    if (!selector) return;
+
+    selector.innerHTML = '<option value="">No business selected</option>' + ENTERPRISE_STATE.businesses
+        .filter(item => item.status !== "inactive")
+        .map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.business_name)}</option>`)
+        .join("");
+
+    const fallback = ENTERPRISE_STATE.businesses.find(item => item.is_default && item.status !== "inactive") || ENTERPRISE_STATE.businesses.find(item => item.status !== "inactive");
+    if (!ENTERPRISE_STATE.activeBusinessId && fallback) ENTERPRISE_STATE.activeBusinessId = fallback.id;
+    selector.value = ENTERPRISE_STATE.activeBusinessId;
+
+    const active = getActiveBusiness();
+    const meta = document.getElementById("active-business-edition");
+    if (meta) meta.textContent = active ? `${active.edition_code || "GLOBAL"} Edition · ${active.currency_code || "—"}` : "No active business";
+}
+
+function handleActiveBusinessChange(id) {
+    ENTERPRISE_STATE.activeBusinessId = id || "";
+    localStorage.setItem("businessforge_active_business_id", ENTERPRISE_STATE.activeBusinessId);
+    updateActiveBusinessControls();
+    if (ENTERPRISE_STATE.currentView === "dashboard") showExecutiveDashboard();
+}
+
+async function enterpriseApi(path, options = {}) {
+    const key = getManagementKey();
+    const headers = { ...(options.headers || {}) };
+    if (options.body && !headers["Content-Type"]) headers["Content-Type"] = "application/json";
+    if (key) headers["x-history-key"] = key;
+
+    const response = await fetch(path, { ...options, headers });
+    let payload = {};
+    try { payload = await response.json(); } catch (_) { payload = {}; }
+    if (!response.ok) throw new Error(payload.error || payload.details || `Request failed with status ${response.status}`);
+    return payload;
+}
+
+async function loadBusinesses({ silent = false } = {}) {
+    const key = getManagementKey();
+    if (!key) {
+        ENTERPRISE_STATE.businesses = [];
+        updateActiveBusinessControls();
+        return false;
+    }
+
+    try {
+        const payload = await enterpriseApi("/api/business-profiles");
+        ENTERPRISE_STATE.businesses = Array.isArray(payload.businesses) ? payload.businesses : [];
+        updateActiveBusinessControls();
+        return true;
+    } catch (error) {
+        if (!silent) showWorkspaceNotice(error.message, "error");
+        return false;
+    }
+}
+
+function showWorkspaceNotice(message, type = "info") {
+    const node = document.getElementById("workspace-notice");
+    if (node) node.innerHTML = `<div class="notice ${type}">${escapeHtml(message)}</div>`;
+}
+
+function openManagementKeyDialog(nextAction = "profiles") {
+    const existing = document.getElementById("management-key-modal");
+    if (existing) existing.remove();
+
+    document.body.insertAdjacentHTML("beforeend", `
+        <div id="management-key-modal" class="modal-backdrop">
+            <div class="enterprise-modal" style="max-width:480px">
+                <div class="modal-header">
+                    <div><div class="enterprise-eyebrow">Owner access</div><div class="modal-title">Connect Business Profiles</div></div>
+                    <button class="modal-close" onclick="closeEnterpriseModal('management-key-modal')">×</button>
+                </div>
+                <div class="notice info">Enter the same value stored as <strong>HISTORY_ADMIN_KEY</strong> in Vercel. It is kept only in this browser session.</div>
+                <div class="form-field">
+                    <label>Management key</label>
+                    <input id="management-key-input" type="password" class="enterprise-input" autocomplete="off" placeholder="Enter owner management key">
+                </div>
+                <div id="management-key-error" class="mt-3"></div>
+                <div class="flex justify-end gap-2 mt-5">
+                    <button class="secondary-button" onclick="closeEnterpriseModal('management-key-modal')">Cancel</button>
+                    <button class="primary-button" onclick="connectManagementKey('${nextAction}')">Connect</button>
+                </div>
+            </div>
+        </div>`);
+}
+
+async function connectManagementKey(nextAction) {
+    const input = document.getElementById("management-key-input");
+    const errorNode = document.getElementById("management-key-error");
+    saveManagementKey(input?.value || "");
+    const loaded = await loadBusinesses({ silent: true });
+    if (!loaded) {
+        saveManagementKey("");
+        if (errorNode) errorNode.innerHTML = '<div class="notice error">The management key was rejected or the API is unavailable.</div>';
+        return;
+    }
+    closeEnterpriseModal("management-key-modal");
+    if (nextAction === "dashboard") showExecutiveDashboard();
+    else showBusinessProfiles();
+}
+
+function closeEnterpriseModal(id) {
+    document.getElementById(id)?.remove();
+}
+
+function showExecutiveDashboard() {
+    ENTERPRISE_STATE.currentView = "dashboard";
+    setActiveNavigation("nav-executive-dashboard");
+    setWorkspaceHeading("Command Centre", "Executive Dashboard");
+    const workspace = document.getElementById("dynamic-workspace");
+    if (!workspace) return;
+
+    const active = getActiveBusiness();
+    const businessHistory = active ? ENTERPRISE_STATE.auditHistory.filter(item => item.businessId === active.id) : ENTERPRISE_STATE.auditHistory;
+    const latest = businessHistory[0];
+    const averageScore = businessHistory.length ? Math.round(businessHistory.reduce((total, item) => total + Number(item.complianceScore || 0), 0) / businessHistory.length) : 0;
+    const highRisk = businessHistory.filter(item => String(item.riskRating || "").toLowerCase() === "high").length;
+
+    workspace.innerHTML = `
+        <div id="workspace-notice"></div>
+        ${!getManagementKey() ? '<div class="notice info">Connect the owner management key to load live businesses and database metrics. <button class="ml-2 underline font-bold" onclick="openManagementKeyDialog(\'dashboard\')">Connect now</button></div>' : ''}
+        <div class="enterprise-card mb-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="enterprise-eyebrow">Active operating entity</div>
+                    <div class="text-2xl font-black mt-1">${escapeHtml(active?.business_name || "Select or create a business")}</div>
+                    <div class="text-xs text-slate-400 mt-2">${escapeHtml(active?.industry || "No industry configured")} · ${escapeHtml(active?.city || active?.province || "Location not configured")}</div>
+                </div>
+                <button class="secondary-button" onclick="showBusinessProfiles()">Manage businesses</button>
+            </div>
+        </div>
+        <div class="dashboard-grid kpis">
+            <div class="enterprise-card"><div class="kpi-label">Businesses</div><div class="kpi-value">${ENTERPRISE_STATE.businesses.filter(item => item.status !== "inactive").length}</div><div class="kpi-note">Active profiles</div></div>
+            <div class="enterprise-card"><div class="kpi-label">Completed audits</div><div class="kpi-value">${businessHistory.length}</div><div class="kpi-note">For current scope</div></div>
+            <div class="enterprise-card"><div class="kpi-label">Compliance position</div><div class="kpi-value">${averageScore}%</div><div class="kpi-note">Average local score</div></div>
+            <div class="enterprise-card"><div class="kpi-label">High-risk flags</div><div class="kpi-value">${highRisk}</div><div class="kpi-note">Requires attention</div></div>
+        </div>
+        <div class="dashboard-two-column">
+            <div class="enterprise-card">
+                <div class="enterprise-card-title">Intelligence engines</div>
+                <div class="enterprise-card-subtitle">Launch an engine in the context of ${escapeHtml(active?.business_name || "the selected business")}.</div>
+                <div class="module-launch-grid">
+                    ${SYNTAX_SYSTEMS_MODULES.map(module => `<button class="module-launch-card" onclick="switchModule('${module.id}')"><div class="module-launch-name">${escapeHtml(module.name)}</div><div class="module-launch-pillar">${escapeHtml(module.pillar)}</div></button>`).join("")}
+                </div>
+            </div>
+            <div class="enterprise-card">
+                <div class="enterprise-card-title">Latest intelligence</div>
+                <div class="enterprise-card-subtitle">Most recent locally recorded audit.</div>
+                ${latest ? `<div class="mt-5"><div class="text-sm font-black">${escapeHtml(latest.moduleName)}</div><div class="profile-meta">${escapeHtml(latest.businessName)}<br>${escapeHtml(latest.timestamp)}</div><div class="profile-tags"><span class="profile-tag">${escapeHtml(latest.riskRating || "Unrated")}</span><span class="profile-tag">${Number(latest.complianceScore || 0)}%</span></div><button class="secondary-button mt-5" onclick="showAuditHistory()">Open history</button></div>` : '<div class="empty-state">No audits recorded in this browser yet.</div>'}
+            </div>
+        </div>`;
+}
+
+function showBusinessProfiles() {
+    ENTERPRISE_STATE.currentView = "profiles";
+    setActiveNavigation("nav-business-profiles");
+    setWorkspaceHeading("Business Management", "Business Profiles");
+    const workspace = document.getElementById("dynamic-workspace");
+    if (!workspace) return;
+
+    if (!getManagementKey()) {
+        workspace.innerHTML = `<div class="enterprise-card"><div class="empty-state"><div class="text-3xl mb-3">▣</div><div class="text-white font-black text-lg">Connect owner access</div><p class="mt-2">Business Profiles uses the protected management API.</p><button class="primary-button mt-5" onclick="openManagementKeyDialog('profiles')">Enter management key</button></div></div>`;
+        return;
+    }
+
+    renderBusinessProfiles();
+    loadBusinesses({ silent: true }).then(ok => { if (ok && ENTERPRISE_STATE.currentView === "profiles") renderBusinessProfiles(); });
+}
+
+function renderBusinessProfiles() {
+    const workspace = document.getElementById("dynamic-workspace");
+    if (!workspace) return;
+    const businesses = ENTERPRISE_STATE.businesses;
+    workspace.innerHTML = `
+        <div id="workspace-notice"></div>
+        <div class="profile-toolbar">
+            <div><div class="enterprise-card-title">Operating entities</div><div class="enterprise-card-subtitle">Create, select and maintain the businesses attached to this account.</div></div>
+            <div class="flex gap-2"><button class="secondary-button" onclick="loadBusinesses().then(renderBusinessProfiles)">Refresh</button><button class="primary-button" onclick="openBusinessForm()">＋ New business</button></div>
+        </div>
+        ${businesses.length ? `<div class="profile-grid">${businesses.map(renderBusinessCard).join("")}</div>` : `<div class="enterprise-card"><div class="empty-state"><div class="text-3xl mb-3">🏢</div><div class="text-white font-black text-lg">No business profiles found</div><p class="mt-2">Create the first operating entity to activate the Command Centre.</p><button class="primary-button mt-5" onclick="openBusinessForm()">Create first business</button></div></div>`}`;
+}
+
+function renderBusinessCard(business) {
+    const isActive = business.id === ENTERPRISE_STATE.activeBusinessId;
+    return `<article class="profile-card ${business.is_default ? "default" : ""}">
+        <div class="flex justify-between gap-3"><div><div class="profile-name">${escapeHtml(business.business_name)}</div><div class="profile-meta">${escapeHtml(business.industry || "Industry not set")}<br>${escapeHtml([business.city, business.province].filter(Boolean).join(", ") || "Location not set")}</div></div><span class="status-pill ${business.status === "inactive" ? "inactive" : ""}">${escapeHtml(business.status || "active")}</span></div>
+        <div class="profile-tags"><span class="profile-tag">${escapeHtml(business.country_code || "ZA")}</span><span class="profile-tag">${escapeHtml(business.edition_code || "ZA")} Edition</span><span class="profile-tag">${escapeHtml(business.currency_code || "ZAR")}</span>${business.is_default ? '<span class="profile-tag">Default</span>' : ''}${isActive ? '<span class="profile-tag">Active</span>' : ''}</div>
+        <div class="profile-actions"><button class="secondary-button" onclick="selectBusiness('${escapeHtml(business.id)}')">Select</button><button class="secondary-button" onclick="openBusinessForm('${escapeHtml(business.id)}')">Edit</button>${business.status !== "inactive" ? `<button class="danger-button" onclick="deactivateBusiness('${escapeHtml(business.id)}')">Deactivate</button>` : ''}</div>
+    </article>`;
+}
+
+function selectBusiness(id) {
+    handleActiveBusinessChange(id);
+    renderBusinessProfiles();
+    showWorkspaceNotice("Active business changed.", "success");
+}
+
+function openBusinessForm(id = "") {
+    const business = ENTERPRISE_STATE.businesses.find(item => item.id === id) || {};
+    document.body.insertAdjacentHTML("beforeend", `
+        <div id="business-form-modal" class="modal-backdrop">
+            <div class="enterprise-modal">
+                <div class="modal-header"><div><div class="enterprise-eyebrow">Business profile</div><div class="modal-title">${id ? "Edit business" : "Create business"}</div></div><button class="modal-close" onclick="closeEnterpriseModal('business-form-modal')">×</button></div>
+                <form id="business-profile-form" onsubmit="saveBusinessProfile(event, '${escapeHtml(id)}')">
+                    <div class="form-grid">
+                        ${businessField("businessName", "Business name", business.business_name, true)}
+                        ${businessField("registrationNumber", "Registration number", business.registration_number)}
+                        ${businessField("industry", "Industry", business.industry)}
+                        ${businessField("industryCode", "Industry code", business.industry_code)}
+                        ${businessField("countryCode", "Country code", business.country_code || "ZA", true)}
+                        ${businessField("editionCode", "Edition code", business.edition_code || "ZA", true)}
+                        ${businessField("currencyCode", "Currency", business.currency_code || "ZAR", true)}
+                        ${businessField("timezoneName", "Timezone", business.timezone_name || "Africa/Johannesburg", true)}
+                        ${businessField("province", "Province / state", business.province)}
+                        ${businessField("city", "City", business.city)}
+                        ${businessField("employeeCount", "Employee count", business.employee_count, false, "number")}
+                        ${businessField("annualRevenue", "Annual revenue", business.annual_revenue, false, "number")}
+                        ${businessField("contactName", "Contact name", business.contact_name)}
+                        ${businessField("contactEmail", "Contact email", business.contact_email, false, "email")}
+                        ${businessField("contactPhone", "Contact phone", business.contact_phone)}
+                        ${businessField("website", "Website", business.website)}
+                        <div class="form-field"><label>Status</label><select name="status" class="enterprise-select"><option value="active" ${business.status !== "inactive" ? "selected" : ""}>Active</option><option value="inactive" ${business.status === "inactive" ? "selected" : ""}>Inactive</option><option value="archived" ${business.status === "archived" ? "selected" : ""}>Archived</option></select></div>
+                        <div class="form-field"><label>Default business</label><select name="isDefault" class="enterprise-select"><option value="false" ${!business.is_default ? "selected" : ""}>No</option><option value="true" ${business.is_default ? "selected" : ""}>Yes</option></select></div>
+                        <div class="form-field full"><label>Notes</label><textarea name="notes" class="enterprise-textarea">${escapeHtml(business.notes || "")}</textarea></div>
+                    </div>
+                    <div id="business-form-error" class="mt-3"></div>
+                    <div class="flex justify-end gap-2 mt-5"><button type="button" class="secondary-button" onclick="closeEnterpriseModal('business-form-modal')">Cancel</button><button type="submit" class="primary-button">${id ? "Save changes" : "Create business"}</button></div>
+                </form>
+            </div>
+        </div>`);
+}
+
+function businessField(name, label, value = "", required = false, type = "text") {
+    return `<div class="form-field"><label>${label}</label><input name="${name}" type="${type}" class="enterprise-input" value="${escapeHtml(value ?? "")}" ${required ? "required" : ""}></div>`;
+}
+
+async function saveBusinessProfile(event, id) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const errorNode = document.getElementById("business-form-error");
+    const data = Object.fromEntries(new FormData(form).entries());
+    data.isDefault = data.isDefault === "true";
+    try {
+        await enterpriseApi(id ? `/api/business-profiles?id=${encodeURIComponent(id)}` : "/api/business-profiles", { method: id ? "PATCH" : "POST", body: JSON.stringify({ ...data, id }) });
+        closeEnterpriseModal("business-form-modal");
+        await loadBusinesses();
+        renderBusinessProfiles();
+        showWorkspaceNotice(id ? "Business updated successfully." : "Business created successfully.", "success");
+    } catch (error) {
+        if (errorNode) errorNode.innerHTML = `<div class="notice error">${escapeHtml(error.message)}</div>`;
+    }
+}
+
+async function deactivateBusiness(id) {
+    if (!confirm("Deactivate this business profile? The database row will be retained.")) return;
+    try {
+        await enterpriseApi(`/api/business-profiles?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+        if (ENTERPRISE_STATE.activeBusinessId === id) ENTERPRISE_STATE.activeBusinessId = "";
+        await loadBusinesses();
+        renderBusinessProfiles();
+        showWorkspaceNotice("Business marked as inactive.", "success");
+    } catch (error) { showWorkspaceNotice(error.message, "error"); }
+}
+
+function showAuditHistory() {
+    ENTERPRISE_STATE.currentView = "history";
+    setActiveNavigation("nav-audit-history");
+    setWorkspaceHeading("Intelligence Records", "Audit History");
+    const workspace = document.getElementById("dynamic-workspace");
+    if (!workspace) return;
+    const rows = ENTERPRISE_STATE.auditHistory;
+    workspace.innerHTML = `<div class="enterprise-card"><div class="profile-toolbar"><div><div class="enterprise-card-title">Local audit ledger</div><div class="enterprise-card-subtitle">This first version records successful audits in the current browser. Database history integration follows.</div></div>${rows.length ? '<button class="danger-button" onclick="clearLocalAuditHistory()">Clear local history</button>' : ''}</div>${rows.length ? `<div class="overflow-x-auto"><table class="data-table"><thead><tr><th>Date</th><th>Business</th><th>Engine</th><th>Risk</th><th>Score</th></tr></thead><tbody>${rows.map(item => `<tr><td>${escapeHtml(item.timestamp)}</td><td>${escapeHtml(item.businessName)}</td><td>${escapeHtml(item.moduleName)}</td><td>${escapeHtml(item.riskRating || "Unrated")}</td><td>${Number(item.complianceScore || 0)}%</td></tr>`).join("")}</tbody></table></div>` : '<div class="empty-state">No successful audits have been recorded in this browser yet.</div>'}</div>`;
+}
+
+function clearLocalAuditHistory() {
+    if (!confirm("Clear locally recorded audit history from this browser?")) return;
+    ENTERPRISE_STATE.auditHistory = [];
+    localStorage.setItem("businessforge_audit_history", "[]");
+    showAuditHistory();
+}
+
+function showEnterpriseSettings() {
+    ENTERPRISE_STATE.currentView = "settings";
+    setActiveNavigation("nav-settings");
+    setWorkspaceHeading("Platform Configuration", "Settings");
+    const workspace = document.getElementById("dynamic-workspace");
+    if (!workspace) return;
+    workspace.innerHTML = `<div class="dashboard-two-column"><div class="enterprise-card"><div class="enterprise-card-title">Owner management connection</div><div class="enterprise-card-subtitle">Used temporarily while role-based authentication is being built.</div><div class="mt-5 notice ${getManagementKey() ? "success" : "info"}">${getManagementKey() ? "A management key is connected for this browser session." : "No management key is connected."}</div><div class="flex gap-2"><button class="primary-button" onclick="openManagementKeyDialog('dashboard')">${getManagementKey() ? "Replace key" : "Connect key"}</button>${getManagementKey() ? '<button class="danger-button" onclick="disconnectManagementKey()">Disconnect</button>' : ''}</div></div><div class="enterprise-card"><div class="enterprise-card-title">Platform edition</div><div class="profile-meta mt-4">Interface: BusinessForge Enterprise v2<br>Default edition: South Africa<br>Default currency: ZAR<br>Timezone: Africa/Johannesburg</div></div></div>`;
+}
+
+function disconnectManagementKey() {
+    saveManagementKey("");
+    ENTERPRISE_STATE.businesses = [];
+    ENTERPRISE_STATE.activeBusinessId = "";
+    updateActiveBusinessControls();
+    showEnterpriseSettings();
+}
+
+
 function switchModule(moduleId) {
     console.log("Switching workspace view target to:", moduleId);
+    ENTERPRISE_STATE.currentView = "module";
     
     const targetModule = SYNTAX_SYSTEMS_MODULES.find(m => m.id === moduleId);
     if (!targetModule) return;
+    clearActiveNavigation();
+    document.getElementById(`btn-${moduleId}`)?.classList.add("active");
+    setWorkspaceHeading(targetModule.pillar, targetModule.name);
     
     const workspace = document.getElementById('dynamic-workspace');
     if (!workspace) return;
@@ -250,16 +616,8 @@ function switchModule(moduleId) {
         injectModuleSampleData(moduleId);
     };
 
-    SYNTAX_SYSTEMS_MODULES.forEach(mod => {
-        const btn = document.getElementById(`btn-${mod.id}`);
-        if (btn) {
-            if (mod.id === moduleId) {
-                btn.className = "w-full text-left px-3 py-2.5 rounded-lg bg-slate-800 text-white transition-colors flex items-center gap-2 text-sm font-medium border border-slate-700/60";
-            } else {
-                btn.className = "w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium border border-transparent";
-            }
-        }
-    });
+    clearActiveNavigation();
+    document.getElementById(`btn-${moduleId}`)?.classList.add("active");
 }
 
 async function executeSecureVercelAudit(moduleId) {
@@ -297,7 +655,9 @@ Generating executive audit report...`;
             },
             body: JSON.stringify({
                 textToScan: textToAnalyze,
-                auditType: moduleId
+                auditType: moduleId,
+                businessId: ENTERPRISE_STATE.activeBusinessId || null,
+                businessProfile: getActiveBusiness()
             })
         });
 
@@ -309,6 +669,21 @@ Generating executive audit report...`;
 
         const resultPayload = await response.json();
 
+        const activeBusiness = getActiveBusiness();
+        const moduleRecord = SYNTAX_SYSTEMS_MODULES.find(item => item.id === moduleId);
+        ENTERPRISE_STATE.auditHistory.unshift({
+            id: `${Date.now()}-${moduleId}`,
+            businessId: activeBusiness?.id || "",
+            businessName: activeBusiness?.business_name || "Unassigned business",
+            moduleId,
+            moduleName: moduleRecord?.name || moduleId,
+            riskRating: resultPayload.overallRiskRating || "Unrated",
+            complianceScore: Number(resultPayload.complianceScore || 0),
+            timestamp: resultPayload.timestamp || new Date().toLocaleString("en-ZA")
+        });
+        ENTERPRISE_STATE.auditHistory = ENTERPRISE_STATE.auditHistory.slice(0, 100);
+        localStorage.setItem("businessforge_audit_history", JSON.stringify(ENTERPRISE_STATE.auditHistory));
+
         if (!outputScreen) return;
 
         outputScreen.style.color = "#cbd5e1";
@@ -316,7 +691,7 @@ Generating executive audit report...`;
         let report = "";
 
         report += `═══════════════════════════════════════════════\n`;
-        report += ` BUSINESSFORGESA EXECUTIVE AUDIT REPORT\n`;
+        report += ` BUSINESSFORGE ENTERPRISE AUDIT REPORT\n`;
         report += `═══════════════════════════════════════════════\n\n`;
 
         report += `STATUS: ${resultPayload.status || "Complete"}\n`;
@@ -544,51 +919,20 @@ function injectModuleSampleData(moduleId) {
 }
 
 function showWelcomeDashboard() {
-    const workspace = document.getElementById('dynamic-workspace');
-    if (!workspace) return;
-
-    workspace.innerHTML = `
-        <div class="p-8 space-y-8 max-w-5xl">
-            <div class="border-b border-slate-800 pb-6">
-                <div class="text-xs font-mono font-bold uppercase tracking-widest text-indigo-400 mb-1">System Core Console</div>
-                <h1 class="text-3xl font-extrabold tracking-tight text-white">Syntax & Systems Framework</h1>
-                <p class="text-slate-400 text-sm mt-2 leading-relaxed">
-                    Welcome to BusinessForgeSA. This automated corporate advisory environment processes raw audit telemetry parameters across compliance, financial forecasting, and operational procedures.
-                </p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="p-5 rounded-xl bg-slate-950/40 border border-slate-800/80">
-                    <div class="text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">🛡️ Pillar 01</div>
-                    <h3 class="text-slate-200 font-bold text-sm">Compliance</h3>
-                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Audit corporate assets against COIDA statutory boundaries, SETA frameworks, and POPIA privacy laws.</p>
-                </div>
-                <div class="p-5 rounded-xl bg-slate-950/40 border border-slate-800/80">
-                    <div class="text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">📈 Pillar 02</div>
-                    <h3 class="text-slate-200 font-bold text-sm">Profit Engine</h3>
-                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Isolate margin erosion targets, manage cash runwayparameters, and secure business estimations.</p>
-                </div>
-                <div class="p-5 rounded-xl bg-slate-950/40 border border-slate-800/80">
-                    <div class="text-indigo-400 text-xs font-mono font-bold uppercase tracking-wider mb-2">⚙️ Pillar 03</div>
-                    <h3 class="text-slate-200 font-bold text-sm">Operations</h3>
-                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Convert tribal workflows into repeatable Standard Operating Procedures and performance trackers.</p>
-                </div>
-            </div>
-        </div>
-    `;
+    showExecutiveDashboard();
 }
 
-function initializeApplicationCore() {console.log("Mounting sidebar event hooks to configuration artifacts...");
-    
+async function initializeApplicationCore() {
+    console.log("Mounting BusinessForge Enterprise Command Centre...");
+
     SYNTAX_SYSTEMS_MODULES.forEach(mod => {
         const sidebarButton = document.getElementById(`btn-${mod.id}`);
-        if (sidebarButton) {
-            sidebarButton.onclick = () => {
-                switchModule(mod.id);
-            };
-        }
+        if (sidebarButton) sidebarButton.onclick = () => switchModule(mod.id);
     });
 
-    showWelcomeDashboard();
+    updateActiveBusinessControls();
+    if (getManagementKey()) await loadBusinesses({ silent: true });
+    showExecutiveDashboard();
 }
 
 window.onload = initializeApplicationCore;

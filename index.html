@@ -301,107 +301,83 @@
         </div>
     </div>
 
-    <main id="main-dashboard" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-950 text-white">
-        
-        <aside class="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col gap-6 shrink-0">
-            <div>
-                <div class="mb-6 cursor-pointer group" onclick="showWelcomeDashboard()">
-                    <div class="text-xs font-mono font-bold uppercase tracking-widest text-indigo-400 group-hover:text-indigo-300 transition-colors">Syntax & Systems</div>
-                    <h1 class="text-xl font-black tracking-tight text-white mt-1">BusinessForge<span class="text-indigo-500">.sa</span></h1>
-                </div>
-                
-                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Consultancy Modules</h2>
-                
-                <div class="space-y-1">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Pillar 1: Compliance</p>
-                    
-                    <button onclick="switchModule('coida-specialist')" id="btn-coida-specialist" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>🛡️</span> COIDA 2022 Specialist
-                    </button>
-                    
-                    <button onclick="switchModule('seta-navigator')" id="btn-seta-navigator" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>📊</span> SETA Navigator
-                    </button>
-                    
-                    <button onclick="switchModule('claralex')" id="btn-claralex" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>⚖️</span> ClaraLex
-                    </button>
-
-                    <!-- Line 178 Correction: Restoring layout route tracking parameters -->
-                    <button onclick="switchModule('brandguard-auditor')" id="btn-brandguard-auditor" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                    <span>🖋️</span> BrandGuard Auditor
-                    </button>
-                </div>
-
-                <div class="space-y-1 mt-6">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Pillar 2: Profit Engine</p>
-                    
-                    <button onclick="switchModule('flowcast')" id="btn-flowcast" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>📈</span> FlowCast
-                    </button>
-                    
-                    <button onclick="switchModule('margin-protector')" id="btn-margin-protector" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>🛡️</span> Margin Protector
-                    </button>
-                    
-                    <button onclick="switchModule('quoteforge')" id="btn-quoteforge" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>📝</span> QuoteForge
-                    </button>
-
-                    <button onclick="switchModule('rankcraft')" id="btn-rankcraft" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>🎯</span> RankCraft
-                    </button>
-                </div>
-
-                <div class="space-y-1 mt-6">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Pillar 3: Operations</p>
-                    
-                    <button onclick="switchModule('procedure-ai')" id="btn-procedure-ai" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>⚙️</span> ProcedureAI
-                    </button>
-                    
-                    <button onclick="switchModule('hireforge')" id="btn-hireforge" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>🤝</span> HireForge
-                    </button>
-                    
-                    <button onclick="switchModule('review-ai')" id="btn-review-ai" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>📋</span> ReviewAI
-                    </button>
-
-                    <button onclick="switchModule('voiceforge')" id="btn-voiceforge" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>🗣️</span> VoiceForge
-                    </button>
-
-                    <button onclick="switchModule('retainiq')" id="btn-retainiq" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-2 text-sm font-medium">
-                        <span>🔄</span> RetainIQ
-                    </button>
-                </div>
-                <div class="mt-8 pt-6 border-t border-slate-800">
-                    <div class="p-3.5 rounded-xl bg-gradient-to-b from-indigo-950/40 to-slate-950 border border-indigo-500/20 text-center">
-                        <span class="block text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest mb-1">🎁 Premium Unlocked</span>
-                        <h4 class="text-xs font-bold text-slate-200 leading-tight mb-3">2026 SA Business Survival Bundle</h4>
-                        <a href="survival-bundle.zip" 
-                           download
-                           class="block w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-mono font-black text-[11px] py-2.5 px-3 rounded-lg border border-indigo-500/30 transition-all shadow-md shadow-indigo-600/10">
-                            📥 Download Bundle (.ZIP)
-                        </a>
+    <main id="main-dashboard" class="hidden min-h-screen bg-slate-950 text-white">
+        <div class="enterprise-shell">
+            <aside id="enterprise-sidebar" class="enterprise-sidebar">
+                <div class="enterprise-brand">
+                    <button type="button" class="sidebar-collapse-button" onclick="toggleEnterpriseSidebar()" aria-label="Toggle sidebar">☰</button>
+                    <div class="enterprise-brand-copy">
+                        <div class="enterprise-eyebrow">Executive Intelligence</div>
+                        <div class="enterprise-logo">BusinessForge<span>Enterprise</span></div>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <button onclick="terminateConsoleSession()" type="button" class="w-full text-left px-3 py-2.5 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 transition-colors flex items-center gap-2 text-sm font-medium border border-rose-950/30">
-                        <span>🔒</span> Secure Exit
-                    </button>
+
+                <div class="sidebar-business-card">
+                    <div class="sidebar-label">Active business</div>
+                    <select id="active-business-select" onchange="handleActiveBusinessChange(this.value)" class="enterprise-select">
+                        <option value="">No business selected</option>
+                    </select>
+                    <div id="active-business-edition" class="sidebar-business-meta">ZA Edition · ZAR</div>
                 </div>
-            </div>
-        </aside>
 
-        <section class="flex-1 p-8 bg-slate-900 flex flex-col justify-start">
-            <div id="dynamic-workspace" class="flex-1 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden min-h-[550px] p-6">
-                
-             
-            </div>
-        </section>
+                <nav class="enterprise-nav" aria-label="BusinessForge navigation">
+                    <div class="nav-section">
+                        <div class="nav-section-title">Command Centre</div>
+                        <button id="nav-executive-dashboard" class="enterprise-nav-item" onclick="showExecutiveDashboard()"><span>⌂</span><span class="nav-copy">Executive Dashboard</span></button>
+                        <button id="nav-business-profiles" class="enterprise-nav-item" onclick="showBusinessProfiles()"><span>▣</span><span class="nav-copy">Business Profiles</span></button>
+                        <button id="nav-audit-history" class="enterprise-nav-item" onclick="showAuditHistory()"><span>◷</span><span class="nav-copy">Audit History</span></button>
+                    </div>
 
+                    <div class="nav-section">
+                        <div class="nav-section-title">Compliance</div>
+                        <button onclick="switchModule('coida-specialist')" id="btn-coida-specialist" class="enterprise-nav-item"><span>🛡️</span><span class="nav-copy">COIDA Specialist</span></button>
+                        <button onclick="switchModule('seta-navigator')" id="btn-seta-navigator" class="enterprise-nav-item"><span>📊</span><span class="nav-copy">SETA Navigator</span></button>
+                        <button onclick="switchModule('claralex')" id="btn-claralex" class="enterprise-nav-item"><span>⚖️</span><span class="nav-copy">ClaraLex</span></button>
+                        <button onclick="switchModule('brandguard-auditor')" id="btn-brandguard-auditor" class="enterprise-nav-item"><span>🖋️</span><span class="nav-copy">BrandGuard</span></button>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Profit Engine</div>
+                        <button onclick="switchModule('flowcast')" id="btn-flowcast" class="enterprise-nav-item"><span>📈</span><span class="nav-copy">FlowCast</span></button>
+                        <button onclick="switchModule('margin-protector')" id="btn-margin-protector" class="enterprise-nav-item"><span>🛡️</span><span class="nav-copy">Margin Protector</span></button>
+                        <button onclick="switchModule('quoteforge')" id="btn-quoteforge" class="enterprise-nav-item"><span>📝</span><span class="nav-copy">QuoteForge</span></button>
+                        <button onclick="switchModule('rankcraft')" id="btn-rankcraft" class="enterprise-nav-item"><span>🎯</span><span class="nav-copy">RankCraft</span></button>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">Operations</div>
+                        <button onclick="switchModule('procedure-ai')" id="btn-procedure-ai" class="enterprise-nav-item"><span>⚙️</span><span class="nav-copy">ProcedureAI</span></button>
+                        <button onclick="switchModule('hireforge')" id="btn-hireforge" class="enterprise-nav-item"><span>🤝</span><span class="nav-copy">HireForge</span></button>
+                        <button onclick="switchModule('review-ai')" id="btn-review-ai" class="enterprise-nav-item"><span>📋</span><span class="nav-copy">ReviewAI</span></button>
+                        <button onclick="switchModule('voiceforge')" id="btn-voiceforge" class="enterprise-nav-item"><span>🗣️</span><span class="nav-copy">VoiceForge</span></button>
+                        <button onclick="switchModule('retainiq')" id="btn-retainiq" class="enterprise-nav-item"><span>🔄</span><span class="nav-copy">RetainIQ</span></button>
+                    </div>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <button id="nav-settings" class="enterprise-nav-item" onclick="showEnterpriseSettings()"><span>⚙</span><span class="nav-copy">Settings</span></button>
+                    <a href="survival-bundle.zip" download class="enterprise-nav-item"><span>⇩</span><span class="nav-copy">Survival Bundle</span></a>
+                    <button onclick="terminateConsoleSession()" class="enterprise-nav-item danger"><span>↪</span><span class="nav-copy">Secure Exit</span></button>
+                </div>
+            </aside>
+
+            <div class="enterprise-main">
+                <header class="enterprise-topbar">
+                    <div>
+                        <div id="workspace-kicker" class="enterprise-eyebrow">Command Centre</div>
+                        <h1 id="workspace-title" class="enterprise-page-title">Executive Dashboard</h1>
+                    </div>
+                    <div class="topbar-actions">
+                        <div class="system-status"><span></span> Systems operational</div>
+                        <button class="topbar-button" onclick="showBusinessProfiles()">＋ Add business</button>
+                    </div>
+                </header>
+
+                <section class="enterprise-content">
+                    <div id="dynamic-workspace" class="enterprise-workspace"></div>
+                </section>
+            </div>
+        </div>
     </main>
 
     <script src="app.js"></script>
