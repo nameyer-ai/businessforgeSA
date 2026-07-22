@@ -192,6 +192,35 @@ const ENTERPRISE_STATE = {
     currentView: "dashboard"
 };
 
+const BUSINESS_GENOME_DIMENSIONS = [
+    { id: "workplace-safety", label: "Workplace Safety", pillar: "Compliance", moduleIds: ["coida-specialist"] },
+    { id: "statutory-readiness", label: "Statutory Readiness", pillar: "Compliance", moduleIds: ["coida-specialist"] },
+    { id: "skills-development", label: "Skills Development", pillar: "Compliance", moduleIds: ["seta-navigator"] },
+    { id: "grant-readiness", label: "Grant Readiness", pillar: "Compliance", moduleIds: ["seta-navigator"] },
+    { id: "legal-exposure", label: "Legal Exposure", pillar: "Compliance", moduleIds: ["claralex"] },
+    { id: "contract-discipline", label: "Contract Discipline", pillar: "Compliance", moduleIds: ["claralex"] },
+    { id: "brand-governance", label: "Brand Governance", pillar: "Compliance", moduleIds: ["brandguard-auditor"] },
+    { id: "communication-quality", label: "Communication Quality", pillar: "Compliance", moduleIds: ["brandguard-auditor"] },
+
+    { id: "cash-resilience", label: "Cash Resilience", pillar: "Profit", moduleIds: ["flowcast"] },
+    { id: "working-capital", label: "Working Capital", pillar: "Profit", moduleIds: ["flowcast"] },
+    { id: "margin-strength", label: "Margin Strength", pillar: "Profit", moduleIds: ["margin-protector"] },
+    { id: "cost-control", label: "Cost Control", pillar: "Profit", moduleIds: ["margin-protector"] },
+    { id: "pricing-discipline", label: "Pricing Discipline", pillar: "Profit", moduleIds: ["quoteforge"] },
+    { id: "scope-protection", label: "Scope Protection", pillar: "Profit", moduleIds: ["quoteforge"] },
+    { id: "market-visibility", label: "Market Visibility", pillar: "Profit", moduleIds: ["rankcraft"] },
+    { id: "demand-generation", label: "Demand Generation", pillar: "Profit", moduleIds: ["rankcraft"] },
+
+    { id: "process-maturity", label: "Process Maturity", pillar: "Operations", moduleIds: ["procedure-ai"] },
+    { id: "documentation-quality", label: "Documentation Quality", pillar: "Operations", moduleIds: ["procedure-ai"] },
+    { id: "talent-fit", label: "Talent Fit", pillar: "Operations", moduleIds: ["hireforge"] },
+    { id: "hiring-discipline", label: "Hiring Discipline", pillar: "Operations", moduleIds: ["hireforge"] },
+    { id: "performance-management", label: "Performance Management", pillar: "Operations", moduleIds: ["review-ai"] },
+    { id: "change-readiness", label: "Change Readiness", pillar: "Operations", moduleIds: ["voiceforge"] },
+    { id: "client-retention", label: "Client Retention", pillar: "Operations", moduleIds: ["retainiq"] },
+    { id: "engagement-health", label: "Engagement Health", pillar: "Operations", moduleIds: ["retainiq"] }
+];
+
 function escapeHtml(value) {
     return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -440,6 +469,84 @@ function buildExecutiveBriefing(active, records, scores, trend, highRisk) {
     return `${active.business_name}: ${strengthText}${weaknessText} ${riskText} ${trendText}`;
 }
 
+function calculateGenomeDimensionScore(records, dimension) {
+    const matching = records.filter(record => dimension.moduleIds.includes(record.moduleId));
+    if (!matching.length) return { score: null, confidence: 0, audits: 0, trend: null, moduleId: dimension.moduleIds[0] };
+
+    const latestScore = Number(matching[0].complianceScore || 0);
+    const averageScore = calculateAverageScore(matching);
+    const score = Math.round((latestScore * 0.6) + (Number(averageScore || 0) * 0.4));
+    const confidence = Math.min(100, 35 + ((matching.length - 1) * 15));
+    return {
+        score,
+        confidence,
+        audits: matching.length,
+        trend: calculateTrend(matching),
+        moduleId: matching[0].moduleId
+    };
+}
+
+function buildBusinessGenome(records) {
+    return BUSINESS_GENOME_DIMENSIONS.map(dimension => ({
+        ...dimension,
+        ...calculateGenomeDimensionScore(records, dimension)
+    }));
+}
+
+function getGenomePriorities(genome) {
+    return genome
+        .filter(item => item.score !== null)
+        .sort((a, b) => a.score - b.score)
+        .slice(0, 4);
+}
+
+function renderGenomeDimension(item) {
+    const status = getScoreStatus(item.score);
+    const trendLabel = item.trend === null ? "Baseline" : item.trend > 0 ? `+${item.trend}` : `${item.trend}`;
+    return `<button class="genome-dimension-card" onclick="switchModule('${escapeHtml(item.moduleId)}')">
+        <div class="genome-dimension-head">
+            <div><span class="genome-pillar">${escapeHtml(item.pillar)}</span><strong>${escapeHtml(item.label)}</strong></div>
+            <span class="genome-score ${status.className}">${item.score === null ? "—" : item.score}</span>
+        </div>
+        <div class="genome-track"><span style="width:${item.score === null ? 0 : item.score}%"></span></div>
+        <div class="genome-meta"><span>${item.audits ? `${item.audits} audit${item.audits === 1 ? "" : "s"}` : "Not measured"}</span><span>${item.score === null ? "Run engine" : `${trendLabel} trend · ${item.confidence}% confidence`}</span></div>
+    </button>`;
+}
+
+function renderGenomeOverview(genome) {
+    const measured = genome.filter(item => item.score !== null);
+    const priorities = getGenomePriorities(genome);
+    const average = measured.length ? Math.round(measured.reduce((sum, item) => sum + item.score, 0) / measured.length) : null;
+    const coverage = Math.round((measured.length / genome.length) * 100);
+
+    return `<section class="enterprise-card genome-shell">
+        <div class="genome-heading">
+            <div>
+                <div class="enterprise-eyebrow">Unified intelligence model</div>
+                <div class="enterprise-card-title genome-title">Business Genome</div>
+                <div class="enterprise-card-subtitle">Twenty-four operating indicators derived from the latest and historical specialist audits for this business.</div>
+            </div>
+            <div class="genome-summary">
+                <div><span>${average === null ? "—" : `${average}%`}</span><small>Genome score</small></div>
+                <div><span>${coverage}%</span><small>Coverage</small></div>
+                <div><span>${measured.length}/24</span><small>Measured</small></div>
+            </div>
+        </div>
+
+        ${priorities.length ? `<div class="genome-priority-strip"><span>Executive priorities</span>${priorities.map(item => `<button onclick="switchModule('${escapeHtml(item.moduleId)}')">${escapeHtml(item.label)} <strong>${item.score}%</strong></button>`).join("")}</div>` : '<div class="notice info genome-empty-note">Run specialist engines to progressively establish the company genome. No invented scores are shown.</div>'}
+
+        <div class="genome-feature-grid">
+            ${genome.filter(item => item.score !== null).sort((a,b) => a.score-b.score).slice(0, 8).map(renderGenomeDimension).join("") || genome.slice(0, 8).map(renderGenomeDimension).join("")}
+        </div>
+
+        <details class="engine-catalogue genome-catalogue">
+            <summary>View all 24 Business Genome indicators</summary>
+            <div class="genome-all-grid">${genome.map(renderGenomeDimension).join("")}</div>
+        </details>
+        <div class="genome-methodology">Scores are decision-support indicators, not accounting or legal conclusions. Each indicator uses 60% of the latest relevant audit and 40% of the historical average; confidence increases as more audits are completed.</div>
+    </section>`;
+}
+
 function renderScoreCard(label, score, note) {
     const status = getScoreStatus(score);
     return `<div class="enterprise-card intelligence-score-card">
@@ -469,6 +576,7 @@ function showExecutiveDashboard() {
     const highRisk = businessHistory.filter(item => String(item.riskRating || "").toLowerCase() === "high").length;
     const trend = calculateTrend(businessHistory);
     const alerts = buildExecutiveAlerts(businessHistory);
+    const businessGenome = buildBusinessGenome(businessHistory);
     const briefing = buildExecutiveBriefing(active, businessHistory, {
         compliance: complianceScore,
         "profit engine": profitScore,
@@ -528,6 +636,8 @@ function showExecutiveDashboard() {
                 ${latest ? `<div class="latest-intelligence-panel"><div class="latest-module">${escapeHtml(latest.moduleName)}</div><div class="profile-meta">${escapeHtml(latest.businessName)}<br>${escapeHtml(latest.timestamp)}</div><div class="profile-tags"><span class="profile-tag">${escapeHtml(latest.riskRating || "Unrated")}</span><span class="profile-tag">${Number(latest.complianceScore || 0)}%</span></div><button class="primary-button mt-5" onclick="switchModule('${escapeHtml(latest.moduleId)}')">Run again</button></div>` : '<div class="empty-state">No audits recorded for this business yet.</div>'}
             </div>
         </div>
+
+        ${renderGenomeOverview(businessGenome)}
 
         <div class="enterprise-card">
             <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
@@ -829,6 +939,8 @@ Generating executive audit report...`;
             moduleName: moduleRecord?.name || moduleId,
             riskRating: resultPayload.overallRiskRating || "Unrated",
             complianceScore: Number(resultPayload.complianceScore || 0),
+            persisted: Boolean(resultPayload.persistence?.saved),
+            auditReportId: resultPayload.persistence?.auditReportId || null,
             timestamp: resultPayload.timestamp || new Date().toLocaleString("en-ZA")
         });
         ENTERPRISE_STATE.auditHistory = ENTERPRISE_STATE.auditHistory.slice(0, 100);
