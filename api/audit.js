@@ -2,7 +2,7 @@
 const { generateAuditReport } = require("./services/openaiService");
 const { buildVerifiedReport, cleanText } = require("./services/reportValidator");
 const { saveAuditReport, saveAuditIntelligence } = require("./services/auditPersistence");
-const { processAuditIntelligence } = require("./core/bic");
+const { processAuditIntelligence } = require("../core/bic");
 
 module.exports = async function auditHandler(request, response) {
   if (request.method !== "POST") {
