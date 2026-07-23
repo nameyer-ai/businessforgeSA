@@ -2,6 +2,7 @@
 const { generateAuditReport } = require("./services/openaiService");
 const { buildVerifiedReport, cleanText } = require("./services/reportValidator");
 const { saveAuditReport, saveAuditIntelligence } = require("./services/auditPersistence");
+const { processAuditIntelligence } = require("./core/bic");
 
 module.exports = async function auditHandler(request, response) {
   if (request.method !== "POST") {
@@ -38,6 +39,7 @@ module.exports = async function auditHandler(request, response) {
 
     const verifiedReport = buildVerifiedReport(aiResponseRaw, timestamp);
     let persistence = { saved: false, auditReportId: null, warnings: [] };
+    let intelligence = { processed: false, reason: "BIC was not executed." };
 
     try {
       const auditReportId = await saveAuditReport({
@@ -57,12 +59,32 @@ module.exports = async function auditHandler(request, response) {
       });
 
       persistence = { saved: true, auditReportId, warnings };
+
+      try {
+        intelligence = await processAuditIntelligence({
+          businessId,
+          auditReportId,
+          moduleId: safeAuditType,
+          verifiedReport,
+        });
+      } catch (bicError) {
+        console.error("Business Intelligence Core failed:", bicError);
+        intelligence = {
+          processed: false,
+          reason: bicError.message,
+        };
+        persistence.warnings.push(`BIC: ${bicError.message}`);
+      }
     } catch (saveError) {
       console.error("Audit persistence failed:", saveError);
       persistence.warnings.push(saveError.message);
     }
 
-    return response.status(200).json({ ...verifiedReport, persistence });
+    return response.status(200).json({
+      ...verifiedReport,
+      persistence,
+      intelligence,
+    });
   } catch (error) {
     console.error("Backend live AI execution fault:", error);
     return response.status(500).json({

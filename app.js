@@ -941,7 +941,8 @@ Generating executive audit report...`;
             complianceScore: Number(resultPayload.complianceScore || 0),
             persisted: Boolean(resultPayload.persistence?.saved),
             auditReportId: resultPayload.persistence?.auditReportId || null,
-            timestamp: resultPayload.timestamp || new Date().toLocaleString("en-ZA")
+            timestamp: resultPayload.timestamp || new Date().toLocaleString("en-ZA"),
+            intelligence: resultPayload.intelligence || null
         });
         ENTERPRISE_STATE.auditHistory = ENTERPRISE_STATE.auditHistory.slice(0, 100);
         localStorage.setItem("businessforge_audit_history", JSON.stringify(ENTERPRISE_STATE.auditHistory));
@@ -1094,6 +1095,26 @@ Generating executive audit report...`;
             });
 
             report += `\n`;
+        }
+
+        if (resultPayload.intelligence?.processed) {
+            const bic = resultPayload.intelligence;
+            report += `════════ BUSINESS INTELLIGENCE CORE ════════\n`;
+            report += `Business Health: ${bic.kpis?.healthScore ?? "—"}%\n`;
+            report += `Genome Coverage: ${bic.kpis?.coverage ?? 0}%\n`;
+            report += `Maturity: Level ${bic.maturity?.level ?? 0} — ${bic.maturity?.label || "Unmeasured"}\n`;
+            report += `Trend: ${bic.trends?.healthDirection || "unknown"}\n\n`;
+            if (bic.coaching?.briefing) report += `${bic.coaching.briefing}\n\n`;
+            if (bic.coaching?.priorities?.length) {
+                report += `Executive Priorities:\n`;
+                bic.coaching.priorities.forEach((item, index) => {
+                    report += `${index + 1}. ${item.title} — ${item.reason}\n`;
+                });
+                report += `\n`;
+            }
+        } else if (resultPayload.intelligence?.reason) {
+            report += `════════ BUSINESS INTELLIGENCE CORE ════════\n`;
+            report += `Not updated: ${resultPayload.intelligence.reason}\n\n`;
         }
 
         report += `════════ DISCLAIMER ════════\n`;
