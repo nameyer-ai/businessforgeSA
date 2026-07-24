@@ -1206,16 +1206,53 @@ function showWelcomeDashboard() {
 }
 
 async function initializeApplicationCore() {
+
     console.log("Mounting BusinessForge Enterprise Command Centre...");
 
     SYNTAX_SYSTEMS_MODULES.forEach(mod => {
-        const sidebarButton = document.getElementById(`btn-${mod.id}`);
-        if (sidebarButton) sidebarButton.onclick = () => switchModule(mod.id);
+
+        const sidebarButton =
+            document.getElementById(`btn-${mod.id}`);
+
+        if (sidebarButton) {
+            sidebarButton.onclick = () => switchModule(mod.id);
+        }
+
     });
 
+    /*
+        FIRST load businesses from Supabase.
+        ONLY afterwards build the dashboard.
+    */
+
+    if (getManagementKey()) {
+
+        const loaded =
+            await loadBusinesses({ silent: false });
+
+        if (!loaded) {
+
+            console.warn(
+                "Business profiles could not be loaded."
+            );
+
+        }
+
+    }
+
+    /*
+        Build the selectors only AFTER
+        businesses have been loaded.
+    */
+
     updateActiveBusinessControls();
-    if (getManagementKey()) await loadBusinesses({ silent: true });
+
+    /*
+        Finally render the dashboard.
+    */
+
     showExecutiveDashboard();
+
 }
 
 window.onload = initializeApplicationCore;
