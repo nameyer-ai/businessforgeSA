@@ -3,6 +3,7 @@ const { generateAuditReport } = require("./services/openaiService");
 const { buildVerifiedReport, cleanText } = require("./services/reportValidator");
 const { saveAuditReport, saveAuditIntelligence } = require("./services/auditPersistence");
 const { processAuditIntelligence } = require("../core/bic");
+const { calculateBusinessValue } = require("../core/businessValueEngine");
 
 module.exports = async function auditHandler(request, response) {
   if (request.method !== "POST") {
@@ -15,7 +16,7 @@ module.exports = async function auditHandler(request, response) {
       textToScan,
       auditType,
       businessId = null,
-      accountId = null,
+      accountId = null,const verifiedReport
     } = request.body || {};
 
     if (!cleanText(textToScan)) {
@@ -38,6 +39,11 @@ module.exports = async function auditHandler(request, response) {
     });
 
     const verifiedReport = buildVerifiedReport(aiResponseRaw, timestamp);
+    const businessValue = calculateBusinessValue({
+  moduleId: safeAuditType,
+  verifiedReport,
+  currency: request.body?.businessProfile?.currency_code || "ZAR",
+});
     let persistence = { saved: false, auditReportId: null, warnings: [] };
     let intelligence = { processed: false, reason: "BIC was not executed." };
 
@@ -81,10 +87,11 @@ module.exports = async function auditHandler(request, response) {
     }
 
     return response.status(200).json({
-      ...verifiedReport,
-      persistence,
-      intelligence,
-    });
+  ...verifiedReport,
+  persistence,
+  intelligence,
+  businessValue,
+});
   } catch (error) {
     console.error("Backend live AI execution fault:", error);
     return response.status(500).json({
