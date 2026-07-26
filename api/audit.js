@@ -16,21 +16,32 @@ module.exports = async function auditHandler(request, response) {
       textToScan,
       auditType,
       businessId = null,
-      accountId = null,const verifiedReport
+      accountId = null,
+      businessProfile = null,
     } = request.body || {};
 
     if (!cleanText(textToScan)) {
-      return response.status(400).json({ error: "Missing input text context." });
+      return response.status(400).json({
+        error: "Missing input text context.",
+      });
     }
 
-    const safeAuditType = cleanText(auditType, "general-business-audit");
+    const safeAuditType = cleanText(
+      auditType,
+      "general-business-audit"
+    );
+
     const cleanInput = textToScan.trim();
     const modelUsed = "gpt-4o-mini";
+
     const timestamp = new Date().toLocaleString("en-ZA", {
       timeZone: "Africa/Johannesburg",
     });
 
-    console.log(`Routing live AI transaction for module target: ${safeAuditType}`);
+    console.log(
+      `Routing live AI transaction for module target: ${safeAuditType}`
+    );
+   
 
     const aiResponseRaw = await generateAuditReport({
       auditType: safeAuditType,
@@ -42,7 +53,7 @@ module.exports = async function auditHandler(request, response) {
     const businessValue = calculateBusinessValue({
   moduleId: safeAuditType,
   verifiedReport,
-  currency: request.body?.businessProfile?.currency_code || "ZAR",
+  currency: businessProfile?.currency_code || "ZAR",
 });
     let persistence = { saved: false, auditReportId: null, warnings: [] };
     let intelligence = { processed: false, reason: "BIC was not executed." };
