@@ -234,7 +234,228 @@ function formatNumber(value) {
     const number = Number(value || 0);
     return new Intl.NumberFormat("en-ZA", { maximumFractionDigits: 0 }).format(number);
 }
+function renderExecutiveValueSummary(businessValue, options = {}) {
+    if (!businessValue?.processed) {
+        return "";
+    }
 
+    const {
+        format = "text",
+        title = "EXECUTIVE VALUE SUMMARY",
+        includeEvidenceNotice = true
+    } = options;
+
+    const currency = businessValue.currency || "ZAR";
+
+    const formatMoney = amount => {
+        const numericAmount = Number(amount);
+
+        if (
+            !Number.isFinite(numericAmount) ||
+            numericAmount <= 0
+        ) {
+            return "Not quantified";
+        }
+
+        try {
+            return new Intl.NumberFormat("en-ZA", {
+                style: "currency",
+                currency,
+                maximumFractionDigits: 0
+            }).format(numericAmount);
+        } catch (_) {
+            return `${currency} ${formatNumber(numericAmount)}`;
+        }
+    };
+
+    const getConfidence = item => {
+        if (!item?.amount) {
+            return "Unmeasured";
+        }
+
+        const confidence = String(
+            item.confidence || "low"
+        ).toLowerCase();
+
+        if (confidence === "high") {
+            return "High confidence";
+        }
+
+        if (confidence === "moderate") {
+            return "Moderate confidence";
+        }
+
+        return "Low confidence";
+    };
+
+    const items = [
+        {
+            label: "Financial Exposure",
+            value: formatMoney(
+                businessValue.financialRisk?.amount
+            ),
+            confidence: getConfidence(
+                businessValue.financialRisk
+            ),
+            detail:
+                businessValue.financialRisk?.label ||
+                "Potential financial risk identified"
+        },
+        {
+            label: "Recoverable Opportunities",
+            value: formatMoney(
+                businessValue.recoverableOpportunity?.amount
+            ),
+            confidence: getConfidence(
+                businessValue.recoverableOpportunity
+            ),
+            detail:
+                businessValue.recoverableOpportunity?.label ||
+                "Potential recoverable value"
+        },
+        {
+            label: "Cost-Saving Potential",
+            value: formatMoney(
+                businessValue.costSavingPotential?.amount
+            ),
+            confidence: getConfidence(
+                businessValue.costSavingPotential
+            ),
+            detail:
+                businessValue.costSavingPotential?.label ||
+                "Potential cost-saving opportunity"
+        },
+        {
+            label: "Revenue-Growth Opportunity",
+            value: formatMoney(
+                businessValue.revenueGrowthPotential?.amount
+            ),
+            confidence: getConfidence(
+                businessValue.revenueGrowthPotential
+            ),
+            detail:
+                businessValue.revenueGrowthPotential?.label ||
+                "Potential revenue-growth opportunity"
+        }
+    ];
+
+    const priority =
+        businessValue.implementationPriority || {};
+
+    const totalValue = formatMoney(
+        businessValue.totalPotentialValue
+    );
+
+    if (format === "html") {
+        return `
+            <section class="enterprise-card executive-value-summary">
+                <div class="executive-value-header">
+                    <div>
+                        <div class="enterprise-eyebrow">
+                            Commercial intelligence
+                        </div>
+                        <div class="enterprise-card-title">
+                            ${escapeHtml(title)}
+                        </div>
+                        <div class="enterprise-card-subtitle">
+                            Financial implications derived from evidence stated in the audit.
+                        </div>
+                    </div>
+
+                    <div class="executive-value-priority">
+                        <span>Priority</span>
+                        <strong>
+                            ${escapeHtml(priority.level || "UNMEASURED")}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="executive-value-total">
+                    <span>Total quantified opportunity</span>
+                    <strong>${escapeHtml(totalValue)}</strong>
+                </div>
+
+                <div class="executive-value-grid">
+                    ${items.map(item => `
+                        <div class="executive-value-item">
+                            <span class="executive-value-label">
+                                ${escapeHtml(item.label)}
+                            </span>
+
+                            <strong class="executive-value-amount">
+                                ${escapeHtml(item.value)}
+                            </strong>
+
+                            <small>
+                                ${escapeHtml(item.confidence)}
+                            </small>
+
+                            <p>
+                                ${escapeHtml(item.detail)}
+                            </p>
+                        </div>
+                    `).join("")}
+                </div>
+
+                ${priority.reason ? `
+                    <div class="executive-value-action">
+                        <span>Executive priority</span>
+                        <p>${escapeHtml(priority.reason)}</p>
+                    </div>
+                ` : ""}
+
+                ${includeEvidenceNotice ? `
+                    <div class="executive-value-notice">
+                        ${escapeHtml(
+                            businessValue.notice ||
+                            "Only values explicitly supported by the audit have been quantified."
+                        )}
+                    </div>
+                ` : ""}
+            </section>
+        `;
+    }
+
+    let output = "";
+
+    output += `═══════════════════════════════════════════════\n`;
+    output += ` ${title}\n`;
+    output += `═══════════════════════════════════════════════\n\n`;
+
+    output += `Total Quantified Opportunity\n`;
+    output += `${totalValue}\n\n`;
+
+    items.forEach(item => {
+        output += `${item.label}\n`;
+        output += `${item.value}\n`;
+        output += `${item.confidence}\n`;
+
+        if (item.detail) {
+            output += `${item.detail}\n`;
+        }
+
+        output += `\n`;
+    });
+
+    output += `Implementation Priority\n`;
+    output += `${priority.level || "UNMEASURED"}\n`;
+
+    if (priority.reason) {
+        output += `${priority.reason}\n`;
+    }
+
+    if (includeEvidenceNotice) {
+        output += `\nEvidence Note\n`;
+        output += `${
+            businessValue.notice ||
+            "Only values explicitly supported by the audit have been quantified."
+        }\n`;
+    }
+
+    output += `\n`;
+
+    return output;
+}
 function setWorkspaceHeading(kicker, title) {
     const kickerNode = document.getElementById("workspace-kicker");
     const titleNode = document.getElementById("workspace-title");
