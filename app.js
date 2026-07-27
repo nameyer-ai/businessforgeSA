@@ -1317,7 +1317,12 @@ Generating executive audit report...`;
 
             report += `\n`;
         }
-
+if (resultPayload.businessValue?.processed) {
+    report += renderExecutiveValueSummary(
+        resultPayload.businessValue,
+        { format: "text" }
+    );
+}
         if (resultPayload.intelligence?.processed) {
             const bic = resultPayload.intelligence;
             report += `════════ BUSINESS INTELLIGENCE CORE ════════\n`;
